@@ -16,6 +16,6 @@ export async function fetchios<K extends string | undefined, D = undefined>(url:
     return data as Wrap<K, D>
   } catch(err) {
     console.error("fetchios:", err)
-    throw err
+    return null
   }
 }
