@@ -1,5 +1,4 @@
-import { z } from 'zod'
-import { envSchema } from "./utils"
+import { EnvSchema, envSchema } from "@/utils"
 
 export function parseEnvVars() {
   const parsedEnv = envSchema.safeParse(process.env)
@@ -10,7 +9,7 @@ export function parseEnvVars() {
   return parsedEnv.data
 }
 
-export function getConfig(envVars: z.infer<typeof envSchema>) {
+export function getConfig(envVars: EnvSchema) {
   return {
     google: {
       redirectURL: envVars.GOOGLE_CALLBACK_URL,

@@ -13,3 +13,5 @@ export const envSchema = z.object({
   ALLOWED_ORIGINS: z.string().transform(val => val.split(',')),
 });
 
+
+export type EnvSchema = z.infer<typeof envSchema>

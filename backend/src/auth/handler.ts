@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { authService } from "@/auth";
 import { sessionRepo } from "@/session";
-import { createCookie, AppError, httpStatus } from '@/utils'
+import { cookieOptions, AppError, httpStatus } from '@/utils'
 import ms from 'ms'
 import { config } from "..";
 import { userService } from "@/user/service";
@@ -16,8 +16,8 @@ export function loginHandler(_req: Request, res: Response) {
 export async function logoutHandler(_req: Request, res: Response) {
   // TODO: can we improve this?
   await sessionRepo.delete(res.locals.sessionId!, res.locals.userId!)
-  res.cookie("accessToken", "", createCookie(0))
-  res.cookie("refreshToken", "", createCookie(0))
+  res.cookie("accessToken", "", cookieOptions(0))
+  res.cookie("refreshToken", "", cookieOptions(0))
   // TODO: custom response format
   return res.send({ message: "Logged out" })
 }
@@ -54,8 +54,8 @@ export async function callbackHandler(req: Request, res: Response) {
   const accessTokenExpiry = ms(config.jwt.accessTokenExpiry)
   const refreshTokenExpiry = ms(config.jwt.refreshTokenExpiry)
 
-  res.cookie("accessToken", accessToken, createCookie(accessTokenExpiry))
-  res.cookie("refreshToken", refreshToken, createCookie(refreshTokenExpiry))
+  res.cookie("accessToken", accessToken, cookieOptions(accessTokenExpiry))
+  res.cookie("refreshToken", refreshToken, cookieOptions(refreshTokenExpiry))
   return res.redirect(config.webRedirectURL)
 }
 

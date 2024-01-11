@@ -1,6 +1,6 @@
 import { CookieOptions } from "express";
 
-export function createCookie(maxAge: number): CookieOptions {
+export function cookieOptions(maxAge: number): CookieOptions {
   return {
     maxAge,
     httpOnly: true,

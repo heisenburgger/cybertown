@@ -1,4 +1,7 @@
 export class AppError extends Error {
+  /* why typescript?
+     -> https://github.com/microsoft/TypeScript/issues/13965
+  */
   __proto__: Error;
   message: string
   statusCode: number

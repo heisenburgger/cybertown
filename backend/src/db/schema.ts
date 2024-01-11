@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, serial, pgEnum, integer, primaryKey, jsonb } from 'drizzle-orm/pg-core'
+import { pgTable, varchar, timestamp, serial, pgEnum, integer, primaryKey, jsonb, smallint } from 'drizzle-orm/pg-core'
 
 // TODO: migration file doesn't contain this?
 const authProviderEnum = pgEnum('provider', ['google', 'github'])
@@ -41,7 +41,7 @@ export const rooms = pgTable("rooms", {
   language: varchar("language", {
     length: 256,
   }).notNull(),
-  maxParticipants: integer("max_participants").notNull(),
+  maxParticipants: smallint("max_participants").notNull(),
   metadata: jsonb("metadata").notNull(),
   createdBy: integer("created_by").notNull().references(() => users.id),
 })
