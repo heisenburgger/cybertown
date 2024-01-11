@@ -4,11 +4,16 @@ import { User } from "@/types"
 
 export const api = {
   async whoAmI() {
-    try {
-      const data = await fetchios<"user", User>(config.apiURL + "/users/me")
-      return data.user
-    } catch(err) {
-      throw err
-    }
+    const url = config.apiURL + "/users/me"
+    const data = await fetchios<"user", User>(url)
+    return data?.user ?? null
+  },
+
+  async logOut() {
+    const url = config.apiURL + "/auth/logout"
+    const data = await fetchios<"message", unknown>(url, {
+      method: "DELETE"
+    })
+    return data?.message ?? null
   }
 }

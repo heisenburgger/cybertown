@@ -8,7 +8,6 @@ export function AuthRedirect() {
       window.opener.postMessage({
         type: "REDIRECTED"
       })
-      console.log("closing bitch")
       window.close()
       messageSentRef.current = true
     }

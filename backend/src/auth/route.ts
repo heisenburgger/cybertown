@@ -6,5 +6,5 @@ import { asyncHandler } from '@/utils'
 export const authRouter = express.Router()
 
 authRouter.get('/login', asyncHandler(loginHandler))
-authRouter.get('/logout', validateTokensAndSetLocals, isAuthenticated, asyncHandler(logoutHandler))
+authRouter.delete('/logout', validateTokensAndSetLocals, isAuthenticated, asyncHandler(logoutHandler))
 authRouter.get('/:provider/callback', asyncHandler(callbackHandler))

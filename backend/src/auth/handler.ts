@@ -6,7 +6,6 @@ import ms from 'ms'
 import { config } from "..";
 import { userService } from "@/user/service";
 import { authRepo } from "./repo";
-import { NewAuthProvider } from "@/db/schema";
 import { callbackParamsSchema } from "./validation";
 
 export function loginHandler(_req: Request, res: Response) {

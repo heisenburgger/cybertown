@@ -1,17 +1,16 @@
 import { config } from "@/config";
-import { api } from "./api"
-import { UserDispatch, loginUser } from "@/context/UserContext";
 
 const WINDOW_FEATURES = "toolbar=no, menubar=no, width=600, height=700, top=100, left=100"
 
+type CallbackFn =  (...args: any) => Promise<any>
+  
 class Popup {
   popupWindow: Window | null = null
   previousURL: string | null = null
-  // I know this is a shitty thing to do, but pls gimme a break (edit: I think this is neat)
-  userDispatch: UserDispatch | null = null
+  callbacks: CallbackFn[] = []
 
   // opens the popup window
-  open = (url: string, name: string, userDispatch: UserDispatch) => {
+  open = (url: string, name: string) => {
     window.removeEventListener("message", this.listen)
     if (!this.popupWindow || this.popupWindow.closed) {
       this.popupWindow = window.open(url, name, WINDOW_FEATURES)
@@ -23,7 +22,6 @@ class Popup {
     }
     window.addEventListener("message", this.listen)
     this.previousURL = url
-    this.userDispatch = userDispatch
   }
 
   // listens for incoming message after the popup
@@ -32,10 +30,13 @@ class Popup {
     if (e.origin !== config.baseURL) {
       return
     }
-    const user = await api.whoAmI()
-    if(this.userDispatch) {
-      loginUser(user, this.userDispatch)
+    for(let fn of this.callbacks) {
+      await fn()
     }
+  }
+
+  appendCallback = (fn: CallbackFn) => {
+    this.callbacks.push(fn)
   }
 }
 
