@@ -1,6 +1,7 @@
 import { ProfileUser, User } from "@/types"
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import dayjs from 'dayjs'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -27,11 +28,9 @@ export function getAvatarFallback(username: string) {
 }
 
 export function getTime(timestamp: number) {
-  const date = new Date(timestamp);
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-  return `${formattedHours}:${formattedMinutes} ${ampm}`;
+  return dayjs(timestamp).format("hh:mm A");
+}
+
+export function getDateTime(dateTime: string) {
+  return dayjs(dateTime).format('MM-DD-YYYY hh:mm A')
 }

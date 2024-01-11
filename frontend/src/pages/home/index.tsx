@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { CreateRoom, RoomCard, Auth } from "@/pages/home/components";
+import { TCreateRoom, RoomCard, Auth } from "@/pages/home/components";
 import { appSocket } from "@/lib/AppSocket";
 import { useMe, useRooms } from "@/hooks/queries";
+import { Button } from "@/components/ui/button";
 
 // TODO: show skeleton loader and empty state for rooms
 export function Home() {
@@ -11,7 +12,7 @@ export function Home() {
 
   // I should probably put this in a layout but let's go
   useEffect(() => {
-    if(!user) {
+    if (!user) {
       return
     }
     appSocket.init()
@@ -20,7 +21,10 @@ export function Home() {
   return (
     <div className="h-full max-w-screen-xl mx-auto p-4">
       <div className="flex items-center justify-between">
-        {user && <CreateRoom open={open} setOpen={setOpen} />}
+        {user && <CreateRoom open={open} setOpen={setOpen}>
+          <Button variant="outline" className="rounded-lg">Create Room</Button>
+        </CreateRoom>
+        }
         <Auth />
       </div>
       <div className="cards mt-12">

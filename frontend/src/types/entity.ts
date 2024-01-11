@@ -3,7 +3,7 @@ export type User = {
   username: string;
   avatar: string;
   bio: string | null;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export type Room = {
@@ -13,6 +13,7 @@ export type Room = {
   maxParticipants: number;
   metadata: RoomMetadata
   createdBy: number;
+  createdAt: string;
 }
 
 type RoomMetadata = {
@@ -23,7 +24,7 @@ type RoomMetadata = {
 
 export type UpdateUser = Pick<User, 'username' | 'avatar'>
 export type ProfileUser = Omit<User, 'bio' | 'createdAt'>
-
-export type SocketRoom = Room & {
+export type SocketRoom = Omit<Room, 'createdBy'> & {
   participants: ProfileUser[]
+  createdBy: ProfileUser
 }

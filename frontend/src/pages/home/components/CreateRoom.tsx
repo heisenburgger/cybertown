@@ -28,13 +28,18 @@ import {
 } from "@/components/ui/form"
 import { useEffect } from "react"
 import { Loader2 } from "lucide-react"
-import { useCreateRoom } from "@/hooks/mutations"
+import { useCreateRoom, useUpdateRoom } from "@/hooks/mutations"
 import { useMe } from "@/hooks/queries"
 import { toast } from "sonner"
 
 type Props = {
   open: boolean
   setOpen: (open: boolean) => void
+  children?: React.ReactNode
+  // for updating a room
+  defaultValues?: CreateRoomValues
+  roomId?: number
+  mode?: "create" | "edit"
 }
 
 const createRoomSchema = z.object({
@@ -46,15 +51,17 @@ const createRoomSchema = z.object({
 })
 
 
+// CreateRoom creates or updates an existing room
 export function CreateRoom(props: Props) {
-  const { open, setOpen } = props
-  const { mutateAsync: createRoomMutate, status } =  useCreateRoom()
-  const loading = status === "pending"
+  const { open, setOpen, children, mode = "create", defaultValues, roomId } = props
+  const { mutateAsync: createRoomMutate, status: createStatus } =  useCreateRoom()
+  const { mutateAsync: updateRoomMutate, status: updateStatus } =  useUpdateRoom()
+  const loading = createStatus === "pending" || updateStatus === "pending"
   const { data: user } = useMe()
 
   const form = useForm<z.infer<typeof createRoomSchema>>({
     resolver: zodResolver(createRoomSchema),
-    values: {
+    values: defaultValues ?? {
       topic: "",
       maxParticipants: "5",
       language: "",
@@ -66,14 +73,25 @@ export function CreateRoom(props: Props) {
       return
     }
     try {
-      await createRoomMutate({
-        ...values,
-        maxParticipants: parseInt(values.maxParticipants),
-      })
+      if(mode === 'create') {
+        await createRoomMutate({
+          ...values,
+          maxParticipants: parseInt(values.maxParticipants),
+        })
+      }
+      if(mode === 'edit' && roomId) {
+        await updateRoomMutate({
+          roomId,
+          room: {
+            ...values,
+            maxParticipants: parseInt(values.maxParticipants),
+          }
+        })
+      }
       setOpen(false)
     } catch(err) {
-      console.error("error: failed to create room:", err)
-      toast.error("Failed to create room")
+      console.error(`error: failed to ${mode} room:`, err)
+      toast.error(`Failed to ${mode} room`)
     }
   }
 
@@ -86,11 +104,13 @@ export function CreateRoom(props: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="rounded-lg">Create Room</Button>
+        {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]" forceMount>
         <DialogHeader className="mb-4">
-          <DialogTitle>Create Room</DialogTitle>
+          <DialogTitle>
+            {mode === 'create' ? 'Create' : 'Edit'} Room
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
@@ -174,6 +194,7 @@ export function CreateRoom(props: Props) {
   )
 }
 
-export type CreateRoom = Omit<z.infer<typeof createRoomSchema>, 'maxParticipants'> & {
+type CreateRoomValues = z.infer<typeof createRoomSchema>
+export type TCreateRoom = Omit<CreateRoomValues, 'maxParticipants'> & {
   maxParticipants: number
 }

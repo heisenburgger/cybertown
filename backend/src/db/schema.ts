@@ -44,6 +44,7 @@ export const rooms = pgTable("rooms", {
   maxParticipants: smallint("max_participants").notNull(),
   metadata: jsonb("metadata").notNull().$type<RoomMetadata>(),
   createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 })
 
 type RoomMetadata = {

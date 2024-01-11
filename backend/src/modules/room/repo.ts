@@ -1,5 +1,5 @@
 import { db } from "@/db"
-import { rooms } from "@/db/schema"
+import { rooms, users } from "@/db/schema"
 import { httpStatus } from "@/lib/utils"
 import { NewRoom, Room } from '@/types/entity'
 import { AppError } from "@/lib/AppError"
@@ -20,7 +20,19 @@ export const roomRepo = {
 
   async getRooms() {
     try {
-      return db.query.rooms.findMany()
+      return db.select({
+        id: rooms.id,
+        topic: rooms.topic,
+        language: rooms.language,
+        maxParticipants: rooms.maxParticipants,
+        metadata: rooms.metadata,
+        createdAt: rooms.createdAt,
+        createdBy: {
+          id: users.id,
+          username: users.username,
+          avatar: users.avatar,
+        }
+      }).from(rooms).leftJoin(users, eq(rooms.createdBy, users.id))
     } catch (err) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to get rooms")
     }

@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Link } from "react-router-dom"
 import { getAvatarFallback } from "@/lib/utils"
 import { SocketRoom } from "@/types"
+import { RoomInfo } from '@/pages/home/components'
 
 type Props = {
   room: SocketRoom
@@ -12,7 +13,10 @@ export function RoomCard(props: Props) {
 
   return (
     <div className="border p-4 shadow-lg flex flex-col rounded-lg">
-      <p className="font-medium text-lg">{room.topic || '-'}</p>
+      <div className="flex items-center justify-between">
+        <p className="font-medium text-lg">{room.topic || '-'}</p>
+        <RoomInfo room={room} />
+      </div>
       <p className="text-muted-foreground">{room.language}</p>
       <div className="flex gap-3 my-6 flex-wrap">
         <>

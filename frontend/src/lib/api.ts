@@ -1,7 +1,7 @@
 import { config } from "@/config"
 import { fetchWrapper } from "@/lib/fetchWrapper"
 import { SocketRoom, User, UpdateRoom, Room } from "@/types"
-import { CreateRoom } from '@/pages/home/components'
+import { TCreateRoom } from '@/pages/home/components'
 
 export const api = {
   async whoAmI() {
@@ -18,7 +18,7 @@ export const api = {
     return data.message
   },
 
-  async createRoom(room: CreateRoom) {
+  async createRoom(room: TCreateRoom) {
     const url = config.apiURL + "/rooms"
     const data = await fetchWrapper<"roomId", number>(url, {
       method: "POST",

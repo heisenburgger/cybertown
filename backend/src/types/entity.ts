@@ -11,7 +11,8 @@ export type NewSession = typeof sessions.$inferInsert
 
 export type Room = typeof rooms.$inferSelect
 export type NewRoom = typeof rooms.$inferInsert
-export type SocketRoom = Room & {
+export type SocketRoom = Omit<Room, 'createdBy'> & {
   participants: ProfileUser[]
+  createdBy: ProfileUser
 }
 

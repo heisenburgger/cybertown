@@ -5,6 +5,7 @@ import { appSocket } from "@/lib/AppSocket"
 import { useRooms } from "@/hooks/queries"
 import { Participants, RoomWidget } from "@/pages/room/components"
 
+// TODO: create a new api for fetching a room by id
 export function Room() {
   const { data: user } = useMe()
   const { data: rooms } = useRooms()
