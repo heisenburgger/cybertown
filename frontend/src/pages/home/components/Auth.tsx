@@ -20,13 +20,13 @@ export function Auth() {
   }
 
   return (
-    <div className="flex">
+    <div className="ml-auto">
       {!user ? (
-        <Button variant="outline" className="ml-auto rounded" onClick={login}>Log In</Button>
+        <Button variant="outline" onClick={login}>Log In</Button>
       ) : (
         <Popover>
-          <PopoverTrigger asChild className="ml-auto">
-            <Button variant="outline" className="p-0 px-2 py-5 rounded flex gap-4">
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="p-0 px-2 py-5 flex gap-4">
               <Avatar className="rounded-full h-6 w-6">
                 <AvatarImage src={user.avatar} alt={user.username} />
                 <AvatarFallback>{user.username.slice(0, 1)}</AvatarFallback>
@@ -34,7 +34,7 @@ export function Auth() {
               <p>{user.username}</p>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-40 rounded flex flex-col gap-3 text-sm">
+          <PopoverContent className="w-40 flex flex-col gap-3 text-sm">
             <Link to="/profile" className="flex gap-2 items-center">
               <UserIcon stroke="#94a3b8" />
               <p>Profile</p>

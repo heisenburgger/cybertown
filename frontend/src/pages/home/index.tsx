@@ -1,14 +1,18 @@
-import { useState } from "react";
+import { useMe } from "@/hooks/queries";
 import { Auth } from "./components/Auth";
-import { ConfirmLogout } from "./components/ConfirmLogout";
+import { CreateRoom } from "./components/CreateRoom";
+import { useState } from "react";
 
 export function Home() {
+  const { data: user } = useMe()
   const [open, setOpen] = useState(false)
 
   return (
     <div className="h-full max-w-screen-xl mx-auto p-4">
-      <Auth />
-      <ConfirmLogout open={open} setOpen={setOpen} />
+      <div className="flex items-center justify-between">
+        {user && <CreateRoom open={open} setOpen={setOpen} />}
+        <Auth />
+      </div>
     </div>
   )
 }

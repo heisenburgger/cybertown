@@ -7,6 +7,10 @@ export async function fetchios<K extends string | undefined, D = undefined>(url:
     const res = await fetch(url, {
       ...options,
       credentials: 'include',
+      headers: {
+       'Content-Type': 'application/json',
+        ...options.headers,
+      },
     })
     const data = await res.json()
     if(!res.ok) {

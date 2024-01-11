@@ -1,6 +1,6 @@
 import { config } from "@/config"
 import { fetchios } from "."
-import { User } from "@/types"
+import { User, NewRoom } from "@/types"
 
 export const api = {
   async whoAmI() {
@@ -11,9 +11,18 @@ export const api = {
 
   async logOut() {
     const url = config.apiURL + "/auth/logout"
-    const data = await fetchios<"message", unknown>(url, {
+    const data = await fetchios<"message", string>(url, {
       method: "DELETE"
     })
     return data?.message ?? null
+  },
+
+  async createRoom(room: NewRoom) {
+    const url = config.apiURL + "/rooms"
+    const data = await fetchios<"roomId", number>(url, {
+      method: "POST",
+      body: JSON.stringify(room)
+    })
+    return data?.roomId ?? null
   }
 }

@@ -6,3 +6,13 @@ export type User = {
   bio: string // TODO: how to type nullable fields?
 }
 
+export type NewRoom = {
+  language: string;
+  maxParticipants: number;
+  metadata: {
+    owner: number;
+    coOwners: number[];
+    welcomeMessage?: string
+  };
+  topic?: string
+}

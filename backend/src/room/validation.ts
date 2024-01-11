@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
 const metadataSchema = z.object({
-  owner: z.string(),
-  coOwners: z.array(z.string()),
-  welcomeMessage: z.string().optional(),
+  owner: z.number(),
+  coOwners: z.array(z.number()),
+  welcomeMessage: z.number().optional(),
 })
 
 export const roomSchema = z.object({
