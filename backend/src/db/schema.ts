@@ -46,6 +46,8 @@ export const rooms = pgTable("rooms", {
   createdBy: integer("created_by").notNull().references(() => users.id),
 })
 
+export type User = typeof users.$inferSelect
+export type Room = typeof rooms.$inferSelect
 export type NewUser = typeof users.$inferInsert;
 export type NewSession = typeof sessions.$inferInsert;
 export type NewRoom = typeof rooms.$inferInsert;

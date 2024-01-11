@@ -9,11 +9,14 @@ import { roomRouter } from '@/room'
 import { initDB } from '@/db'
 import cookieParser from 'cookie-parser'
 import http from 'http'
-import { Server, Socket } from 'socket.io'
+import { Server } from 'socket.io'
+import { registerRoomHandlers } from './socket/registerRoomHandler'
+import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData, TServer, TSocket } from './socket/types'
 
 const app = express()
 export const router = express.Router()
 export let config: ReturnType<typeof getConfig>
+export let io: TServer
 
 // middlewares
 app.use(cors)
@@ -29,22 +32,6 @@ app.use('/v1', router)
 app.use(notFoundHandler)
 app.use(errorHandler)
 
-let participantSocketMap: Record<string, Socket> = {}
-let rooms: Record<string, {
-  participants: Set<number>
-}> = {}
-
-function joinRoom(roomId: number, userId: number) {
-  const room = rooms[roomId]
-  if(room) {
-    room.participants.add(userId)
-    return
-  }
-  rooms[roomId] = {
-    participants: new Set([userId])
-  }
-}
-
 async function main() {
   try {
     const envVars = parseEnvVars()
@@ -53,51 +40,23 @@ async function main() {
 
     const httpServer = http.createServer(app)
 
-    const io = new Server(httpServer, {
+    io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
       cors: {
         origin: config.allowedOrigins,
         methods: ["GET", "POST"]
       }
     })
 
-    // client established the bi-directional connection with the server
-    io.on("connection", (socket) => {
-      socket.on("PING", (data) => {
-        console.log("ACTION: PING:", data)
-        if(data.userId) {
-          participantSocketMap[data.userId] = socket
-        }
-      })
+    const onConnection = (socket: TSocket) => {
+      registerRoomHandlers(io, socket)
+    }
 
-      socket.on("JOIN_ROOM", (data) => {
-        console.log("ACTION: JOIN_ROOM:", data)
-        // TODO: validate the data using zod?
-        joinRoom(data.roomId, data.userId)
-        console.log("rooms after join:", rooms)
-      })
-
-      socket.on("ROOM_SEND_MESSAGE", (data) => {
-        console.log("ACTION: ROOM_SEND_MESSAGE:", data)
-        const room = rooms[data.roomId]
-        if(!room) {
-          console.error("error: no room found for roomId:", data.roomId)
-          return
-        }
-        console.log("participants:", Object.keys(room.participants))
-        room.participants.forEach(participant => {
-          const socket = participantSocketMap[participant]
-          if(!socket) {
-            console.error("error: no socket found for participant:", participant)
-          }
-          socket.emit("ROOM_SEND_MESSAGE", data)
-        })
-      })
-    })
+    io.on("connection", onConnection)
 
     httpServer.listen(config.port, () => {
       console.log(`server started at port ${config.port}`)
     })
-  } catch(err) {
+  } catch (err) {
     console.error("failed to initialize server:", err)
     process.exit(1)
   }

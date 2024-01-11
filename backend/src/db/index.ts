@@ -12,7 +12,7 @@ export async function initDB(config: Config) {
       connectionString: config.postgreDSN
     })
     await pool.connect()
-    db = drizzle(pool, { schema, logger: true })
+    db = drizzle(pool, { schema, logger: false })
   } catch (err) {
     throw new Error("failed to connect to db")
   }

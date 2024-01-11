@@ -46,7 +46,7 @@ const newRoomSchema = z.object({
 
 export function CreateRoom(props: Props) {
   const { open, setOpen } = props
-  const { mutate: createRoomMutate, status } =  useCreateRoom()
+  const { mutateAsync: createRoomMutate, status } =  useCreateRoom()
   const loading = status === "pending"
   const { data: user } = useMe()
 
@@ -60,18 +60,24 @@ export function CreateRoom(props: Props) {
   })
 
   // TODO: show alert if this failed
-  function onSubmit(values: z.infer<typeof newRoomSchema>) {
+  async function onSubmit(values: z.infer<typeof newRoomSchema>) {
     if(!user) {
       return
     }
-    createRoomMutate({
-      ...values,
-      maxParticipants: parseInt(values.maxParticipants),
-      metadata: {
-        owner: user.id,
-        coOwners: [],
-      }
-    })
+
+    try {
+      await createRoomMutate({
+        ...values,
+        maxParticipants: parseInt(values.maxParticipants),
+        metadata: {
+          owner: user.id,
+          coOwners: [],
+        }
+      })
+      setOpen(false)
+    } catch(err) {
+      console.error("error: failed to create room:", err)
+    }
   }
 
   useEffect(() => {

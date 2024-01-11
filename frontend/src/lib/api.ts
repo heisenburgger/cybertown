@@ -1,6 +1,6 @@
 import { config } from "@/config"
 import { fetchios } from "."
-import { User, NewRoom } from "@/types"
+import { User, NewRoom, SocketRoom } from "@/types"
 
 export const api = {
   async whoAmI() {
@@ -24,5 +24,11 @@ export const api = {
       body: JSON.stringify(room)
     })
     return data?.roomId ?? null
-  }
+  },
+
+  async getRooms() {
+    const url = config.apiURL + "/rooms"
+    const data = await fetchios<"rooms", SocketRoom[]>(url)
+    return data?.rooms ?? null
+  },
 }

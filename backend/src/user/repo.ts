@@ -33,5 +33,5 @@ export const userRepo = {
     } catch(err) {
       throw err
     }
-  }
+  },
 }

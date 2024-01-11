@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
     --background: 224 71.4% 4.1%;
@@ -37,5 +36,13 @@
   }
   html, body, #root {
     @apply h-full
+  }
+  textarea {
+    resize: none;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1rem;
   }
 }

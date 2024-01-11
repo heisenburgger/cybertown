@@ -8,6 +8,7 @@ import { authPopup } from "@/lib";
 import { LogoutIcon, UserIcon } from "@/icons";
 import { Link } from 'react-router-dom'
 import { ConfirmLogout } from "./ConfirmLogout";
+import { getAvatarFallback } from "@/lib/utils";
 
 export function Auth() {
   const [open, setOpen] = useState(false)
@@ -29,7 +30,7 @@ export function Auth() {
             <Button variant="outline" className="p-0 px-2 py-5 flex gap-4">
               <Avatar className="rounded-full h-6 w-6">
                 <AvatarImage src={user.avatar} alt={user.username} />
-                <AvatarFallback>{user.username.slice(0, 1)}</AvatarFallback>
+                <AvatarFallback>{getAvatarFallback(user.username)}</AvatarFallback>
               </Avatar>
               <p>{user.username}</p>
             </Button>
