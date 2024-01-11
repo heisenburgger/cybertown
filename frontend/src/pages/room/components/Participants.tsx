@@ -12,6 +12,7 @@ import { ParticipantMenu } from "@/pages/room/components"
 import { useMe } from "@/hooks/queries"
 import { ShieldIcon } from "lucide-react"
 import { InPM, SetState } from ".."
+import { appMediasoup } from "@/lib/AppMediasoup"
 
 type Props = {
   room: SocketRoom
@@ -19,11 +20,26 @@ type Props = {
   textareaRef: React.RefObject<HTMLTextAreaElement>
   inPM: InPM
   setInPM: SetState<InPM>
+  isConsuming: boolean
+  setIsConsuming: SetState<boolean>
 }
 
 export function Participants(props: Props) {
   const { data: user } = useMe()
-  const { participants, room, inPM, setInPM, textareaRef } = props
+  const { participants, room, inPM, setInPM, textareaRef, setIsConsuming } = props
+
+  function consume(participantId: number) {
+    appMediasoup.consume(participantId, (track) => {
+      const videoEl = document.getElementById("screenShareStream")
+      if(!videoEl) {
+        throw new Error("Missing video element")
+      }
+      if(videoEl instanceof HTMLVideoElement) {
+        videoEl.srcObject = new MediaStream([track])
+        setIsConsuming(true)
+      }
+    })
+  }
 
   return (
     <div className="flex gap-3 justify-center py-4">
@@ -60,7 +76,7 @@ export function Participants(props: Props) {
                 </Tooltip>
               </TooltipProvider>
             )}
-            <Overlay participant={participant} />
+            <Overlay participant={participant} consume={consume} />
             {participant.id !== user?.id && (
               <ParticipantMenu participant={participant} room={room} inPM={inPM} setInPM={setInPM} textareaRef={textareaRef} />
             )}
@@ -73,12 +89,13 @@ export function Participants(props: Props) {
 
 type OverlayProps = {
   participant: ProfileUser
+  consume: (participantId: number) => void
 }
 
 function Overlay(props: OverlayProps) {
-  const { participant } = props
+  const { participant, consume } = props
   return (
-    <div className="absolute hidden bottom-0 h-full left-0 bg-black/70 group-hover:flex items-center justify-center">
+    <div role="button" onClick={() => consume(participant.id)} className="absolute hidden bottom-0 h-full left-0 bg-black/70 group-hover:flex items-center justify-center">
       <p className="text-xs text-center">{participant.username}</p>
     </div>
   )

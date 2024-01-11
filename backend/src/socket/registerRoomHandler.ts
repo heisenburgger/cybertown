@@ -7,7 +7,9 @@ import crypto from 'crypto'
 import { prefixedRoomId } from '@/lib/utils'
 import { config } from '..'
 import { roomService } from '@/modules/room/service'
-
+import { appWorker } from '@/mediasoup/AppWorker'
+import { ConnectTransportPayload, ConsumePayload, ConsumeResumePayload, ConsumerOptions, CreateTransportPayload, ProducePayload } from '@/types/mediasoup'
+import * as mediasoupUtils from '@/lib/mediasoup'
 
 export function registerRoomHandlers(io: TServer, socket: TSocket) {
   async function joinRoom(roomId: number) {
@@ -29,7 +31,14 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
         username: user.username,
       }
       // check if the user can join the room (reason: banned, kicked)
-      socket.join(prefixedRoomId(roomId))
+      const socketRoomId = prefixedRoomId(roomId)
+      socket.join(socketRoomId)
+
+      const isRouterWorkerPresent = appWorker.roomWorkerRouterMap[socketRoomId]
+      if(!isRouterWorkerPresent) {
+        appWorker.assignWorkerRouterToRoom(socketRoomId)
+      }
+
       io.emit("room:participant:joined", {
         roomId,
         user: socket.data.user,
@@ -153,9 +162,147 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
     })
   }
 
+  function getRTPCapabilities(roomId: number) {
+    const socketRoomId = prefixedRoomId(roomId)
+    if(!hasMediasoupPermissions(socketRoomId)) {
+      return
+    }
+    const workerRouter = appWorker.roomWorkerRouterMap[socketRoomId]
+    const rtpCapabilities = workerRouter.router.rtpCapabilities
+    socket.emit('room:mediasoup:rtpCapabilities', rtpCapabilities)
+  }
+
+  async function createTransports(roomId: number) {
+    const socketRoomId = prefixedRoomId(roomId)
+    if(!hasMediasoupPermissions(socketRoomId)) {
+      return
+    }
+
+    const workerRouter = appWorker.roomWorkerRouterMap[socketRoomId]
+    const sendTp = await mediasoupUtils.createTransport(workerRouter.router)
+    const recvTp = await mediasoupUtils.createTransport(workerRouter.router)
+    socket.data.mediasoup.sendTransport = sendTp
+    socket.data.mediasoup.recvTransport = recvTp
+
+    const sendTpOptions = mediasoupUtils.transportToOptions(sendTp)
+    const recvTpOptions = mediasoupUtils.transportToOptions(recvTp)
+
+    socket.emit('room:mediasoup:transportOptions', {
+      'send': sendTpOptions,
+      'recv': recvTpOptions,
+    })
+  }
+
+  function connectTransport(data: ConnectTransportPayload) {
+    const socketRoomId = prefixedRoomId(data.roomId)
+    if(!hasMediasoupPermissions(socketRoomId)) {
+      return
+    }
+    const socketMediasoup = socket.data.mediasoup
+    const transport = data.direction === 'send' ? socketMediasoup.sendTransport : socketMediasoup.recvTransport
+    if(!transport) {
+      console.log("error: connectTransport: missing transport")
+      return
+    }
+    transport.connect({
+      dtlsParameters: data.dtlsParameters
+    })
+  }
+
+  function hasMediasoupPermissions(roomId: string) {
+    const isInRoom = socket.rooms.has(roomId)
+    if(!isInRoom) {
+      console.log("error: hasMediasoupPermissions: not in room")
+      return false
+    }
+    const workerRouter = appWorker.getWorkerRouter(roomId)
+    if(!workerRouter) {
+      console.log("error: hasMediasoupPermissions: missing worker router for room")
+      return false
+    }
+    return true
+  }
+
+  async function produce(data: ProducePayload, cb: (producerId: string) => void) {
+    const socketRoomId = prefixedRoomId(data.roomId)
+    if(!hasMediasoupPermissions(socketRoomId)) {
+      return
+    }
+    const transport = socket.data.mediasoup.sendTransport
+    if(!transport) {
+      console.log("error: missing send transport for produce")
+      return
+    }
+    const producer = await transport.produce({
+      kind: data.kind,
+      rtpParameters: data.rtpParameters
+    })
+    socket.data.mediasoup.producer = producer
+    cb(producer.id)
+    io.in(socketRoomId).emit('room:mediasoup:produced', socket.data.user)
+  }
+
+  async function consume(data: ConsumePayload, cb: (options: ConsumerOptions) => void) {
+    const socketRooomId = prefixedRoomId(data.roomId)
+    if(!hasMediasoupPermissions(socketRooomId)) {
+      return
+    }
+    // check if the partipant is in room
+    const sockets = await io.in(socketRooomId).fetchSockets()
+    const participantSocket = sockets.find(socket => socket.data.auth?.userId === data.participantId)
+    if(!participantSocket) {
+      console.log("errror: consume: participant not in room")
+      return
+    }
+
+    const workerRouter = appWorker.roomWorkerRouterMap[socketRooomId]
+    // TODO: handle errors
+    const producerId = participantSocket.data.mediasoup?.producer?.id!
+    const canConsume = workerRouter.router.canConsume({
+      rtpCapabilities: data.rtpCapabilities,
+      producerId 
+    })
+    if(canConsume) {
+      const recvTransport = socket.data.mediasoup.recvTransport!
+      const consumer = await recvTransport.consume({
+        rtpCapabilities: data.rtpCapabilities,
+        producerId,
+        paused: true,
+      })
+      socket.data.mediasoup.consumers.push(consumer)
+      cb({
+        id: consumer.id,
+        kind: consumer.kind,
+        producerId,
+        rtpParameters: consumer.rtpParameters
+      })
+    } else {
+      console.log("error: unable to consume")
+    }
+  }
+
+  function consumeResume(data: ConsumeResumePayload) {
+    const socketRooomId = prefixedRoomId(data.roomId)
+    if(!hasMediasoupPermissions(socketRooomId)) {
+      return
+    }
+    const consumer = socket.data.mediasoup.consumers.find(consumer => consumer.id === data.consumerId)
+    if(!consumer) {
+      console.log("error: failed to consume")
+      return
+    }
+    consumer.resume()
+  }
+
   socket.on("room:participant:join", joinRoom)
   socket.on("disconnecting", leaveRoom)
   socket.on("room:message:send", broadcastMessage)
   socket.on("room:privateMessage:send", broadcastPrivateMessage)
   socket.on("room:chat:clear", clearChat)
+  socket.on("room:mediasoup:rtpCapabilities", getRTPCapabilities)
+  socket.on("room:mediasoup:transport:create", createTransports)
+  socket.on("room:mediasoup:transport:connect", connectTransport)
+  socket.on("room:mediasoup:produce", produce)
+  socket.on("room:mediasoup:consume", consume)
+  socket.on("room:mediasoup:consume:resume", consumeResume)
 }

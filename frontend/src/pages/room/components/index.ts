@@ -1,5 +1,5 @@
 export * from './Log'
-export * from './Games'
+export * from './Apps'
 export * from './Message'
 export * from './Messages'
 export * from './Settings'

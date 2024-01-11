@@ -60,7 +60,6 @@ export function ParticipantMenu(props: Props) {
     if(textareaRef.current) {
       textareaRef.current.focus()
       setInPM({ participant })
-      console.log("hello")
     }
   }
 

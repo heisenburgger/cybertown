@@ -13,6 +13,7 @@ import { Server } from 'socket.io'
 import { registerRoomHandlers } from '@/socket/registerRoomHandler'
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData, TServer, TSocket } from '@/types/socket'
 import { isSocketAuthenticated } from '@/middleware'
+import { appWorker } from '@/mediasoup/AppWorker'
 
 const app = express()
 export const router = express.Router()
@@ -40,6 +41,7 @@ async function main() {
     const envVars = parseEnvVars()
     config = getConfig(envVars)
     await initDB(config)
+    await appWorker.create()
     const httpServer = http.createServer(app)
     io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
       cors: {

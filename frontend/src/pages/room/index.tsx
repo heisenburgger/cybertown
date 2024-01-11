@@ -5,6 +5,7 @@ import { appSocket } from "@/lib/AppSocket"
 import { useRooms } from "@/hooks/queries"
 import { Participants, RoomWidget } from "@/pages/room/components"
 import { ProfileUser } from "@/types"
+import { cn } from "@/lib/utils"
 
 export type InPM = {
   participant: ProfileUser
@@ -22,6 +23,9 @@ export function Room() {
   const room = rooms?.find(room => room.id === roomId)
   const participants = room?.participants ?? []
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [isScreenSharing, setIsScreenSharing] = useState(false)
+  const [isConsuming, setIsConsuming] = useState(false)
+  const isVideoPlaying = isScreenSharing || isConsuming
 
   // determines whether the user in involved in a private message
   const [inPM, setInPM] = useState<InPM>(null)
@@ -44,12 +48,19 @@ export function Room() {
   return (
     <div className="h-full grid grid-cols-[1fr_400px]">
       <div className="flex flex-col">
-        <div className="flex-1 flex items-center justify-center whitespace-pre-wrap">
-          {room.metadata.welcomeMessage?.replace('[username]', user.username)}
+        <div className="flex-1 flex flex-col items-center justify-center whitespace-pre-wrap">
+          <div className="h-[60px] border-b">
+          </div>
+          <div className="relative border border-r-0 w-full h-full flex items-center justify-center">
+            <video autoPlay id="screenShareStream" className={cn("border-red-500 absolute h-full w-full", {
+              'hidden': !isVideoPlaying
+            })} />
+            {!isVideoPlaying && <p>{room.metadata.welcomeMessage?.replace('[username]', user.username)}</p>}
+          </div>
         </div>
-        <Participants participants={participants} room={room} textareaRef={textareaRef} inPM={inPM} setInPM={setInPM} />
+        <Participants participants={participants} room={room} textareaRef={textareaRef} inPM={inPM} setInPM={setInPM} isConsuming={isConsuming} setIsConsuming={setIsConsuming} />
       </div>
-      <RoomWidget room={room} events={events ?? []} textareaRef={textareaRef} inPM={inPM} setInPM={setInPM} />
+      <RoomWidget room={room} events={events ?? []} textareaRef={textareaRef} inPM={inPM} setInPM={setInPM} isScreenSharing={isScreenSharing} setIsScreenSharing={setIsScreenSharing} />
     </div>
   )
 }

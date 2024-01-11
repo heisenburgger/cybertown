@@ -1,7 +1,8 @@
 import { config } from '@/config'
 import io from 'socket.io-client'
 import { queryClient } from '@/lib/queryClient'
-import { RoomChatClearPayload, RoomEvent, RoomMessageReq, RoomPrivateMessageReq, TSocket, User } from '@/types'
+import { ConnectTransportPayload, RoomChatClearPayload, RoomEvent, RoomMessageReq, RoomPrivateMessageReq, TSocket, User } from '@/types'
+import { appMediasoup } from './AppMediasoup'
 
 class AppSocket {
   socket: TSocket | null = null
@@ -38,6 +39,15 @@ class AppSocket {
 
     this.socket.on('room:participant:joined', data => {
       console.log('room:participant:joined:', data)
+      // if the participant is the logged in user, send req
+      // for getting rtp capabilities
+      const user: User | undefined = queryClient.getQueryData(['me'])
+      const isMe = user?.id === data.user.id
+      if(isMe) {
+        appMediasoup.roomId = data.roomId
+        this.getRTPCapabilities(data.roomId)
+      }
+
       queryClient.setQueriesData({
         queryKey: ['room:events', data.roomId]
       }, (oldData) => {
@@ -134,6 +144,20 @@ class AppSocket {
         queryKey: ['rooms']
       })
     })
+
+    this.socket.on('room:mediasoup:rtpCapabilities', rtpCapabilities => {
+      console.log('room:mediasoup:rtpCapabilities', rtpCapabilities)
+      appMediasoup.loadDevice(rtpCapabilities)
+    })
+
+    this.socket.on('room:mediasoup:transportOptions', data => {
+      console.log('room:mediasoup:transportOptions', data)
+      appMediasoup.createTransports(data)
+    })
+
+    this.socket.on('room:mediasoup:produced', data => {
+      console.log('room:mediasoup:produced', data)
+    })
   }
   
   joinRoom = (roomId: number) => {
@@ -150,6 +174,18 @@ class AppSocket {
 
   clearChat = (message: RoomChatClearPayload) => {
     this.socket?.emit('room:chat:clear', message)
+  }
+
+  createTransports = (roomId: number) => {
+    this.socket?.emit('room:mediasoup:transport:create', roomId)
+  }
+
+  getRTPCapabilities = (roomId: number) => {
+    this.socket?.emit('room:mediasoup:rtpCapabilities', roomId)
+  }
+
+  connectTransport = (data: ConnectTransportPayload) => {
+    this.socket?.emit("room:mediasoup:transport:connect", data)
   }
 }
 
