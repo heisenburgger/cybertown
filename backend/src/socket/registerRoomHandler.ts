@@ -1,8 +1,8 @@
 import { roomRepo } from '@/modules/room/repo'
 import { TServer, TSocket } from '@/types/socket'
-import { RoomMessage } from '@/types/entity-message'
+import { PrivateRoomMessage, RoomMessage } from '@/types/entity-message'
 import { userRepo } from '@/modules/user/repo'
-import { RoomChatClearPayload, RoomMessageReq } from '@/types/event-payload'
+import { RoomChatClearPayload, RoomMessageReq, RoomPrivateMessageReq } from '@/types/event-payload'
 import crypto from 'crypto'
 import { prefixedRoomId } from '@/lib/utils'
 import { config } from '..'
@@ -40,22 +40,59 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
     }
   }
 
-  function broadcastMessage(message: RoomMessageReq) {
-    const socketRoomId = prefixedRoomId(message.roomId)
+  function broadcastMessage(data: RoomMessageReq) {
+    const socketRoomId = prefixedRoomId(data.roomId)
     const isInRoom = socket.rooms.has(socketRoomId)
     if (!isInRoom) {
       console.error("error: broadcastMessage: not in room")
       return
     }
-    const roomMessage: RoomMessage = {
+    const message: RoomMessage = {
       id: crypto.randomUUID(),
       sentAt: Date.now(),
       from: socket.data.user,
       // TODO: validate the incoming `message`
-      content: message.content,
-      roomId: message.roomId,
+      content: data.content,
+      roomId: data.roomId,
     }
-    io.in(socketRoomId).emit('room:message:broadcast', roomMessage)
+    io.in(socketRoomId).emit('room:message:broadcast', message)
+  }
+
+  async function broadcastPrivateMessage(data: RoomPrivateMessageReq) {
+    // check if the user/participant is part of room
+    const userId = socket.data.auth?.userId!
+    const socketRoomId = prefixedRoomId(data.roomId)
+    let sockets = await io.in(socketRoomId).fetchSockets()
+    sockets = sockets.filter(socket => {
+      const socketUserId = socket.data.auth?.userId 
+      return socketUserId === userId || socketUserId === data.participantId
+    })
+    if(sockets.length !== 2) {
+      console.log("error: user or participant is not part of room")
+      return
+    }
+
+    // check if participant is valid
+    const participants = await userRepo.getUserProfiles([data.participantId])
+    if(!participants.length) {
+      console.error("error: broadcastPrivateMessage: participant not found")
+      return
+    }
+
+    const message: PrivateRoomMessage = {
+      id: crypto.randomUUID(),
+      sentAt: Date.now(),
+      from: socket.data.user,
+      to: participants[0],
+      // TODO: validate the incoming `message`
+      content: data.content,
+      roomId: data.roomId,
+    }
+
+    // send the event to the participants involved in this exchange
+    sockets.forEach(socket => {
+      socket.emit('room:message:broadcast', message)
+    })
   }
 
   function leaveRoom() {
@@ -119,5 +156,6 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
   socket.on("room:participant:join", joinRoom)
   socket.on("disconnecting", leaveRoom)
   socket.on("room:message:send", broadcastMessage)
+  socket.on("room:privateMessage:send", broadcastPrivateMessage)
   socket.on("room:chat:clear", clearChat)
 }

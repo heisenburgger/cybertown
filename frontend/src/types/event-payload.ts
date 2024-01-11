@@ -17,6 +17,12 @@ export type RoomMessageReq = {
   roomId: number
 }
 
+export type RoomPrivateMessageReq = {
+  content: string
+  roomId: number
+  participantId: number
+}
+
 export type RoomCoOwnershipPayload = {
   type: 'set' | 'unset'
   by: ProfileUser

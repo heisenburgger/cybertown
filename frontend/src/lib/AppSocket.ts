@@ -1,7 +1,7 @@
 import { config } from '@/config'
 import io from 'socket.io-client'
 import { queryClient } from '@/lib/queryClient'
-import { RoomChatClearPayload, RoomEvent, RoomMessageReq, TSocket, User } from '@/types'
+import { RoomChatClearPayload, RoomEvent, RoomMessageReq, RoomPrivateMessageReq, TSocket, User } from '@/types'
 
 class AppSocket {
   socket: TSocket | null = null
@@ -142,6 +142,10 @@ class AppSocket {
 
   sendMessage = (message: RoomMessageReq) => {
     this.socket?.emit('room:message:send', message)
+  }
+
+  sendPrivateMessage = (message: RoomPrivateMessageReq) => {
+    this.socket?.emit('room:privateMessage:send', message)
   }
 
   clearChat = (message: RoomChatClearPayload) => {

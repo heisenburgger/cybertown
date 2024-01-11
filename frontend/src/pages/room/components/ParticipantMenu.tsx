@@ -11,15 +11,19 @@ import { toast } from "sonner";
 import { useUpdateRoomMetadata } from "@/hooks/mutations";
 import { useMe } from "@/hooks/queries";
 import { appSocket } from "@/lib/AppSocket";
+import { InPM, SetState } from "..";
 
 type Props = {
   room: SocketRoom
   participant: ProfileUser
+  textareaRef: React.RefObject<HTMLTextAreaElement>
+  inPM: InPM
+  setInPM: SetState<InPM>
 }
 
 export function ParticipantMenu(props: Props) {
   const { data: user } = useMe()
-  const { room, participant } = props
+  const { room, participant, textareaRef, setInPM } = props
   const { mutateAsync: updateRoomMetadataMutate } = useUpdateRoomMetadata()
 
   const isPartcipantCoOwner = room.metadata.coOwners?.includes(participant.id)
@@ -28,6 +32,7 @@ export function ParticipantMenu(props: Props) {
   const isOwner = user?.id === room.metadata.owner
   const isCoOwner = user?.id === room.metadata.coOwners?.includes(user?.id as number)
 
+  const hasPermissions = (isOwner || isCoOwner) && !isParticipantOwner
 
   async function setCoOwnership(unset = false) {
     try {
@@ -51,14 +56,20 @@ export function ParticipantMenu(props: Props) {
     })
   }
 
-  const hasPermissions = (isOwner || isCoOwner) && !isParticipantOwner
+  function putInPM() {
+    if(textareaRef.current) {
+      textareaRef.current.focus()
+      setInPM({ participant })
+      console.log("hello")
+    }
+  }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="absolute top-0 right-0 bg-primary/40 p-1 rounded-bl-xl group-hover:bg-primary/80">
         <Settings strokeWidth="1" size="12" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="top flex flex-col justify-center gap-2 p-2">
+      <DropdownMenuContent className="top flex flex-col justify-center gap-2 p-2" onCloseAutoFocus={e => e.preventDefault()}>
         {hasPermissions && (
           <>
             <DropdownMenuItem className="flex gap-2 items-center" onClick={() => {
@@ -84,7 +95,7 @@ export function ParticipantMenu(props: Props) {
             <p>Transfer Room</p>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem className="flex gap-2 items-center">
+        <DropdownMenuItem className="flex gap-2 items-center" onClick={putInPM}>
           <VenetianMask stroke="#94a3b8" strokeWidth="1" size="18" />
           <p>PM</p>
         </DropdownMenuItem>

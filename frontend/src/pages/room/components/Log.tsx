@@ -24,7 +24,7 @@ export function Log(props: Props) {
   }
 
   return (
-    <div className="flex justify-between items-center text-muted-foreground text-xs my-1.5">
+    <div className="flex justify-between items-center text-muted-foreground text-xs my-3 px-3">
       {isAttendanceLog && (
        <AttendanceLog log={log as AttendanceLogEvent} />
       )}

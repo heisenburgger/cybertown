@@ -1,12 +1,12 @@
 import { Server, Socket } from "socket.io"
 import { ProfileUser, Room } from "./entity"
-import { RoomChatClearPayload, RoomChatClearedPayload, RoomCoOwnershipPayload, RoomJoinedPayload, RoomLeavePayload, RoomMessageReq } from "./event-payload"
-import { RoomMessage } from "./entity-message"
+import { RoomChatClearPayload, RoomChatClearedPayload, RoomCoOwnershipPayload, RoomJoinedPayload, RoomLeavePayload, RoomMessageReq, RoomPrivateMessageReq } from "./event-payload"
+import { PrivateRoomMessage, RoomMessage } from "./entity-message"
 
 export interface ServerToClientEvents {
   'room:participant:joined': (data: RoomJoinedPayload) => void
   'room:participant:left': (data: RoomLeavePayload) => void
-  'room:message:broadcast': (message: RoomMessage) => void
+  'room:message:broadcast': (message: RoomMessage | PrivateRoomMessage) => void
   'room:created': (room: Room) => void
   'room:updated': (room: Room) => void
   'room:coOwnership:updated': (data: RoomCoOwnershipPayload) => void
@@ -15,7 +15,8 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   'room:participant:join': (roomId: number) => void
-  'room:message:send': (message: RoomMessageReq) => void
+  'room:message:send': (data: RoomMessageReq) => void
+  'room:privateMessage:send': (data: RoomPrivateMessageReq) => void
   'room:chat:clear': (data: RoomChatClearPayload) => void
 }
 

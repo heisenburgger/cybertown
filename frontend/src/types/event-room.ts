@@ -1,9 +1,9 @@
-import { RoomMessage } from "@/types/entity-message"
+import { PrivateRoomMessage, RoomMessage } from "@/types/entity-message"
 import { RoomChatClearedPayload, RoomCoOwnershipPayload, RoomJoinedPayload, RoomLeavePayload } from "@/types/event-payload"
 
 export type RoomEvent = {
   type: "message"
-  payload: RoomMessage
+  payload: RoomMessage | PrivateRoomMessage
 } | {
   type: "log:join"
   payload: RoomJoinedPayload
