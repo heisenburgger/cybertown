@@ -6,6 +6,7 @@ import { errorHandler, notFoundHandler } from '@/utils'
 import { getConfig, parseEnvVars } from '@/config'
 import { authRouter } from '@/auth'
 import { userRouter } from '@/user'
+import { roomRouter } from '@/room'
 import { initDB } from '@/db'
 
 const app = express()
@@ -13,12 +14,14 @@ export const router = express.Router()
 export let config: ReturnType<typeof getConfig>
 
 // middlewares
+app.use(express.json())
 app.use(cors)
 app.use(cookieParser())
 
 // routes
 router.use('/auth', authRouter)
 router.use('/users', userRouter)
+router.use('/rooms', roomRouter)
 app.use('/v1', router)
 
 app.use(notFoundHandler)

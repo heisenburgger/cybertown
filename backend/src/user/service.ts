@@ -4,7 +4,6 @@ import { NewAuthProvider, users } from '@/db/schema'
 import { userRepo } from '@/user/repo'
 import { eq } from 'drizzle-orm'
 
-
 export const userService = {
   async createUser(user: {
     username: string

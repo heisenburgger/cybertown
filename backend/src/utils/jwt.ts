@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { config } from '..'
+import { AppError } from './error'
+import { httpStatus } from './httpStatus'
 
 export function signJWT(payload: Record<string, any>, expiresIn: string) {
   return jwt.sign(payload, config.jwt.secret, {
@@ -9,5 +11,10 @@ export function signJWT(payload: Record<string, any>, expiresIn: string) {
 
 // TODO: what the fuck this returns?
 export function verifyJWT<T>(token: string): T {
-  return jwt.verify(token, config.jwt.secret) as T
+  try {
+    return jwt.verify(token, config.jwt.secret) as T
+  } catch(err) {
+    // probably need to check the type of error
+    throw new AppError(httpStatus.UNAUTHORIZED, "Expired token")
+  }
 }

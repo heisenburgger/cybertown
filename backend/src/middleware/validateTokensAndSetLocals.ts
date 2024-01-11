@@ -9,10 +9,14 @@ export async function validateTokensAndSetLocals(req: Request, res: Response, ne
   const { accessToken, refreshToken }  = req.cookies
 
   if(accessToken) {
-    const decodedToken = verifyJWT<{ userId: string, sessionId: number }>(accessToken)
-    if(decodedToken.userId) {
-      res.locals.userId = decodedToken.userId
-      res.locals.sessionId = decodedToken.sessionId
+    try {
+      const accessTokenPayload = verifyJWT<{ userId: string, sessionId: number }>(accessToken)
+      if(accessTokenPayload.userId) {
+        res.locals.userId = accessTokenPayload.userId
+        res.locals.sessionId = accessTokenPayload.sessionId
+        return next()
+      }
+    } catch(err) {
       return next()
     }
   }
@@ -21,9 +25,15 @@ export async function validateTokensAndSetLocals(req: Request, res: Response, ne
     return next()
   }
 
-  const { sessionId } = verifyJWT<{ sessionId?: string }>(refreshToken)
-  if(!sessionId) {
-    return next()
+  let sessionId;
+  try {
+    const refreshTokenPayload = verifyJWT<{ sessionId?: string }>(refreshToken)
+    sessionId = refreshTokenPayload.sessionId
+    if(!sessionId) {
+      return next()
+    }
+  } catch(err) {
+     return next()
   }
 
   try {

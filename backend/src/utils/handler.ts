@@ -9,7 +9,9 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
   if(err instanceof AppError) {
     return res.status(err.statusCode).send({ error: err.message })
   }
-  return res.status(500).send('Internal Server Error')
+  return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+    error: 'Internal Server Error'
+  })
 }
 
 // TODO: why this isn't working?

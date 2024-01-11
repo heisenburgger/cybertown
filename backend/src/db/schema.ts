@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, serial, pgEnum, integer, primaryKey } from 'drizzle-orm/pg-core'
+import { pgTable, varchar, timestamp, serial, pgEnum, integer, primaryKey, jsonb } from 'drizzle-orm/pg-core'
 
 // TODO: migration file doesn't contain this?
 const authProviderEnum = pgEnum('provider', ['google', 'github'])
@@ -33,6 +33,19 @@ export const sessions = pgTable('sessions', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const rooms = pgTable("rooms", {
+  id: serial("id").primaryKey(),
+  topic: varchar("topic", {
+    length: 256,
+  }),
+  language: varchar("language", {
+    length: 256,
+  }).notNull(),
+  maxParticipants: integer("max_participants").notNull(),
+  metadata: jsonb("metadata").notNull(),
+  createdBy: integer("created_by").notNull().references(() => users.id),
+})
+
 export type NewUser = typeof users.$inferInsert;
 export type NewSession = typeof sessions.$inferInsert;
-export type NewAuthProvider = typeof authProviders.$inferInsert;
+export type NewRoom = typeof rooms.$inferInsert;
