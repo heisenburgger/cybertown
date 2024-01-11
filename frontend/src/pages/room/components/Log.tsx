@@ -8,7 +8,8 @@ type Props = {
 
 type RoomLogEvent = Extract<RoomEvent, { type: `log:${string}` }>
 type AttendanceLogEvent = Extract<RoomLogEvent, { type: `${string}:${'join' | 'leave'}` }>
-type CoOwnershipEvent = Exclude<RoomLogEvent, AttendanceLogEvent>
+type CoOwnershipEvent = Extract<RoomLogEvent, { type: 'log:coOwnership' }>
+type ClearChatEvent = Extract<RoomLogEvent, { type: 'log:clearChat' }>
 
 export function Log(props: Props) {
   const { log } = props
@@ -18,7 +19,7 @@ export function Log(props: Props) {
 
   if(log.type === 'log:join' || log.type === 'log:leave') {
     user = log.payload.user
-  } else if(log.type === 'log:coOwnership') {
+  } else if(log.type === 'log:coOwnership' || log.type === 'log:clearChat') {
     user = log.payload.to
   }
 
@@ -27,8 +28,11 @@ export function Log(props: Props) {
       {isAttendanceLog && (
        <AttendanceLog log={log as AttendanceLogEvent} />
       )}
-      {!isAttendanceLog && (
+      {log.type.endsWith(":coOwnership") && (
        <CoOwnershipLog log={log as CoOwnershipEvent} />
+      )}
+      {log.type.endsWith(":clearChat") && (
+       <ClearChatLog log={log as ClearChatEvent} />
       )}
       {user && (
         <Avatar key={user.id} className="w-5 h-5 rounded-sm">
@@ -66,5 +70,17 @@ function CoOwnershipLog(props: CoOwnershipLogProps) {
       'text-yellow-500': type === 'set',
       'text-red-500': type === 'unset',
     })}>{by.username} has {type} {to.username} to Co-Owner</p>
+  )
+}
+
+type ClearChatLogProps = {
+  log: ClearChatEvent
+}
+
+function ClearChatLog(props: ClearChatLogProps) {
+  const { log } = props
+  const { by, to } = log.payload
+  return (
+    <p className="text-red-500">{by.username} has removed all messages of {to.username}</p>
   )
 }

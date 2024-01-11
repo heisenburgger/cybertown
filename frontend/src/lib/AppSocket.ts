@@ -1,7 +1,7 @@
 import { config } from '@/config'
 import io from 'socket.io-client'
 import { queryClient } from '@/lib/queryClient'
-import { RoomEvent, RoomMessageReq, TSocket, User } from '@/types'
+import { RoomChatClearPayload, RoomEvent, RoomMessageReq, TSocket, User } from '@/types'
 
 class AppSocket {
   socket: TSocket | null = null
@@ -96,10 +96,39 @@ class AppSocket {
       }, (oldData) => {
           const events = oldData as RoomEvent[]
           const event: RoomEvent = {
-            type: 'coOwnership',
+            type: 'log:coOwnership',
             payload: data
           }
           return [...events, event]
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['rooms']
+      })
+    })
+
+    this.socket.on('room:chat:cleared', data => {
+      console.log('room:chat:cleared', data)
+      queryClient.setQueriesData({
+        queryKey: ['room:events', data.roomId]
+      }, (oldData) => {
+          const events = oldData as RoomEvent[]
+          const event: RoomEvent = {
+            type: 'log:clearChat',
+            payload: data
+          }
+          return [...events, event].map(event => {
+            if(event.type === 'message' && event.payload.from.id === data.to.id) {
+              return {
+                ...event,
+                payload: {
+                  ...event.payload,
+                  content: "",
+                  isDeleted: true,
+                }
+              }
+            }
+            return event
+          })
       })
       queryClient.invalidateQueries({
         queryKey: ['rooms']
@@ -113,6 +142,10 @@ class AppSocket {
 
   sendMessage = (message: RoomMessageReq) => {
     this.socket?.emit('room:message:send', message)
+  }
+
+  clearChat = (message: RoomChatClearPayload) => {
+    this.socket?.emit('room:chat:clear', message)
   }
 }
 

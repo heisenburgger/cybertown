@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/tooltip"
 import { ParticipantMenu } from "@/pages/room/components"
 import { useMe } from "@/hooks/queries"
+import { ShieldIcon } from "lucide-react"
 
 type Props = {
   room: SocketRoom
@@ -23,13 +24,15 @@ export function Participants(props: Props) {
   return (
     <div className="flex gap-3 justify-center py-4">
       {participants.map(participant => {
+        const isOwner = room.metadata.owner === participant.id
+        const isCoOwner = room.metadata.coOwners?.includes(participant.id)
         return (
           <div key={participant.id} className="relative group">
             <Avatar className="w-20 h-20 rounded-lg">
               <AvatarImage src={participant.avatar} alt={participant.username} />
               <AvatarFallback className="rounded-lg">{getAvatarFallback(participant.username)}</AvatarFallback>
             </Avatar>
-            {participant.id === room.metadata.owner  && (
+            {isOwner && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger className="absolute left-0 bottom-0 bg-primary/60 p-1 rounded-tr-lg z-10 group-hover:bg-primary/80">
@@ -37,6 +40,18 @@ export function Participants(props: Props) {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Owner</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            {isCoOwner && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger className="absolute left-0 bottom-0 bg-primary/60 p-1 rounded-tr-lg z-10 group-hover:bg-primary/80">
+                    <ShieldIcon stroke="#FFF" strokeWidth="1" size="16" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Co-Owner</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

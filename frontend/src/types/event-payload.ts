@@ -23,3 +23,14 @@ export type RoomCoOwnershipPayload = {
   to: ProfileUser
   roomId: number
 }
+
+export type RoomChatClearPayload = {
+  roomId: number
+  participantId: number
+}
+
+export type RoomChatClearedPayload = {
+  by: ProfileUser
+  to: ProfileUser
+  roomId: number
+}

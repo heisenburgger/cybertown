@@ -1,5 +1,5 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
-import { getAvatarFallback, getTime } from "@/lib/utils"
+import { cn, getAvatarFallback, getTime } from "@/lib/utils"
 import { RoomMessage } from "@/types"
 import { AvatarFallback } from "@radix-ui/react-avatar"
 
@@ -21,7 +21,11 @@ export function Message(props: Props) {
           <p className="text-xs text-primary">{from.username}</p>
           <p className="text-muted-foreground text-[10px]">{getTime(message.sentAt)}</p>
         </div>
-        <p className="text-sm pt-1">{message.content}</p>
+        <p className={cn("text-sm pt-1", {
+          'text-italic text-muted-foreground text-xs': message.isDeleted
+        })}>
+          {message.isDeleted ? "This message is deleted" : message.content }
+        </p>
       </div>
     </div>
   )
