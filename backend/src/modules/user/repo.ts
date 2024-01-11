@@ -22,16 +22,9 @@ export const userRepo = {
 
   async get(userId: number) {
     try {
-      const rows = await db.select({
-        id: users.id,
-        username: users.username,
-        avatar: users.avatar,
-        bio: users.bio,
-      }).from(users).where(eq(users.id, userId))
-      if(rows.length) {
-        return rows[0]
-      }
-      throw new AppError(httpStatus.NOT_FOUND, 'The user is not found')
+      return db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.id, userId)
+      })
     } catch(err) {
       throw err
     }
@@ -46,5 +39,20 @@ export const userRepo = {
     } catch(err) {
       throw err
     }
-  }
+  },
+
+  async getUserProfiles(userIds: number[]) {
+    try {
+      return db.query.users.findMany({
+        columns: {
+          id: true,
+          username: true,
+          avatar: true,
+        },
+        where: (users, { inArray }) => inArray(users.id, userIds)
+      })
+    } catch (err) {
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch user profiles")
+    }
+  },
 }

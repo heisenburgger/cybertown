@@ -1,4 +1,5 @@
 import { pgTable, varchar, timestamp, serial, pgEnum, integer, primaryKey, jsonb, smallint } from 'drizzle-orm/pg-core'
+import { RoomMetadata } from '@/types/entity'
 
 // TODO: migration file doesn't contain this?
 const authProviderEnum = pgEnum('provider', ['google', 'github'])
@@ -46,9 +47,3 @@ export const rooms = pgTable("rooms", {
   createdBy: integer("created_by").notNull().references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 })
-
-type RoomMetadata = {
-  owner: number,
-  coOwners?: number[],
-  welcomeMessage?: string
-}

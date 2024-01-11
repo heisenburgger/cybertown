@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { getAvatarFallback } from "@/lib/utils"
 import { SocketRoom } from "@/types"
 import { RoomInfo } from '@/pages/home/components'
+import { Button } from "@/components/ui/button"
 
 type Props = {
   room: SocketRoom
@@ -36,9 +37,11 @@ export function RoomCard(props: Props) {
           })}
         </>
       </div>
-      <Link to={`/rooms/${room.id}`} className="self-center px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg">
+      <Button className="self-center" onClick={() => {
+        window.open(`/rooms/${room.id}`, "_blank")
+      }}>
         Join Now
-      </Link>
+      </Button>
     </div>
   )
 }

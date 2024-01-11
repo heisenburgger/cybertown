@@ -13,7 +13,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { SocketRoom } from '@/types'
-import { useUpdateRoom } from '@/hooks/mutations'
 import { toast } from 'sonner'
 
 type Props = {
@@ -25,10 +24,10 @@ const schema = z.object({
   welcomeMessage: z.string().optional()
 })
 
+// TODO: use the room metadata api for this
 export function WelcomeMessage(props: Props) {
   const { welcomeMessage, room } = props
-  const { mutateAsync: updateRoomMutate, status } = useUpdateRoom()
-  const loading = status === "pending"
+  const loading = false
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -39,14 +38,6 @@ export function WelcomeMessage(props: Props) {
 
   async function onSubmit(values: z.infer<typeof schema>) {
     try {
-      await updateRoomMutate({
-        roomId: room.id,
-        room: {
-          metadata: {
-            welcomeMessage: values.welcomeMessage
-          }
-        }
-      })
     } catch(err) {
       console.log('error: failed to update welcome message:', err)
       if(err instanceof Error) {

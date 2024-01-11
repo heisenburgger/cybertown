@@ -87,6 +87,24 @@ class AppSocket {
         queryKey: ['rooms']
       })
     })
+
+
+    this.socket.on('room:coOwnership:updated', data => {
+      console.log('room:coOwnership:updated', data)
+      queryClient.setQueriesData({
+        queryKey: ['room:events', data.roomId]
+      }, (oldData) => {
+          const events = oldData as RoomEvent[]
+          const event: RoomEvent = {
+            type: 'coOwnership',
+            payload: data
+          }
+          return [...events, event]
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['rooms']
+      })
+    })
   }
   
   joinRoom = (roomId: number) => {

@@ -16,3 +16,10 @@ export type RoomMessageReq = {
   content: string
   roomId: number
 }
+
+export type RoomCoOwnershipPayload = {
+  type: 'set' | 'unset'
+  by: ProfileUser
+  to: ProfileUser
+  roomId: number
+}

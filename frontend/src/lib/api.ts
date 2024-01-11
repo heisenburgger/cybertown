@@ -41,4 +41,20 @@ export const api = {
     })
     return data.room
   },
+
+  async updateRoomMetadata(input: {
+     participantId: number,
+     roomId: number,
+     queryString: string,
+  }) {
+    const { participantId, roomId, queryString } = input
+    const url = config.apiURL + `/rooms/${roomId}/metadata?${queryString}`
+    const data = await fetchWrapper<"event", any>(url, {
+      method: "PUT",
+      body: JSON.stringify({
+        participantId
+      }),
+    })
+    return data.event
+  },
 }

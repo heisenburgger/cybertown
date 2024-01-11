@@ -1,5 +1,5 @@
 export * from './UserIcon'
 export * from './LogoutIcon'
-export * from './ShieldIcon'
 export * from './CrownIcon'
 export * from './GearIcon'
+export * from './ShoeIcon'

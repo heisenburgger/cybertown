@@ -33,7 +33,7 @@ export function Room() {
   return (
     <div className="h-full grid grid-cols-[1fr_400px]">
       <div className="flex flex-col">
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center whitespace-pre-wrap">
           {room.metadata.welcomeMessage?.replace('[username]', user.username)}
         </div>
         <Participants participants={participants} room={room} />

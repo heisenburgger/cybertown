@@ -15,4 +15,9 @@ export type SocketRoom = Omit<Room, 'createdBy'> & {
   participants: ProfileUser[]
   createdBy: ProfileUser
 }
+export type RoomMetadata = {
+  owner: number,
+  coOwners?: number[],
+  welcomeMessage?: string
+}
 
