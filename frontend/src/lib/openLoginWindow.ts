@@ -4,32 +4,40 @@ import { UserDispatch, loginUser } from "@/context/UserContext";
 
 const WINDOW_FEATURES = "toolbar=no, menubar=no, width=600, height=700, top=100, left=100"
 
-let popupWindow: Window | null = null
-let previousURL: string | null = null
-// I know this is a shitty thing to do, but pls gimme a break
-let userDispatch: UserDispatch | null = null
+class Popup {
+  popupWindow: Window | null = null
+  previousURL: string | null = null
+  // I know this is a shitty thing to do, but pls gimme a break (edit: I think this is neat)
+  userDispatch: UserDispatch | null = null
 
-async function receiveMessage(e: MessageEvent) {
-  if (e.origin !== config.baseURL) {
-    return
+  // opens the popup window
+  open = (url: string, name: string, userDispatch: UserDispatch) => {
+    window.removeEventListener("message", this.listen)
+    if (!this.popupWindow || this.popupWindow.closed) {
+      this.popupWindow = window.open(url, name, WINDOW_FEATURES)
+    } else if (this.previousURL !== url) {
+      this.popupWindow = window.open(url, name, WINDOW_FEATURES)
+      this.popupWindow?.focus()
+    } else {
+      this.popupWindow?.focus()
+    }
+    window.addEventListener("message", this.listen)
+    this.previousURL = url
+    this.userDispatch = userDispatch
   }
-  const user = await api.whoAmI()
-  if(userDispatch) {
-    loginUser(user, userDispatch)
+
+  // listens for incoming message after the popup
+  // redirected to "auth-redirect" route
+  listen = async(e: MessageEvent) => {
+    if (e.origin !== config.baseURL) {
+      return
+    }
+    const user = await api.whoAmI()
+    if(this.userDispatch) {
+      loginUser(user, this.userDispatch)
+    }
   }
 }
 
-export function openLoginWindow(url: string, name: string, dispatch: UserDispatch) {
-  window.removeEventListener("message", receiveMessage)
-  if (!popupWindow || popupWindow.closed) {
-    popupWindow = window.open(url, name, WINDOW_FEATURES)
-  } else if (previousURL !== url) {
-    popupWindow = window.open(url, name, WINDOW_FEATURES)
-    popupWindow?.focus()
-  } else {
-    popupWindow?.focus()
-  }
-  window.addEventListener("message", receiveMessage)
-  previousURL = url
-  userDispatch = dispatch
-}
+// singleton (i know big words)
+export const authPopup = new Popup()

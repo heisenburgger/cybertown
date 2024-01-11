@@ -1,13 +1,13 @@
 import { Button } from "@/components";
 import { useUser } from "@/context/UserContext";
-import { openLoginWindow } from "@/lib/openLoginWindow";
+import { authPopup } from "@/lib";
 
 export function Home() {
   const { user, dispatch } = useUser()
 
   function handleClick() {
     const url = import.meta.env.VITE_API_URL + "/auth/login"
-    openLoginWindow(url, "Sign in with Google", dispatch)
+    authPopup.open(url, "Sign in with Google", dispatch)
   }
 
   return (
