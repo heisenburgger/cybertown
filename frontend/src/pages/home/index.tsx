@@ -11,8 +11,11 @@ export function Home() {
 
   // I should probably put this in a layout but let's go
   useEffect(() => {
+    if(!user) {
+      return
+    }
     appSocket.init()
-  }, [])
+  }, [user?.id])
 
   return (
     <div className="h-full max-w-screen-xl mx-auto p-4">

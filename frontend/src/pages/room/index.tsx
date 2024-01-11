@@ -2,7 +2,6 @@ import { useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { useMe, useRoomEvents } from "@/hooks/queries"
 import { appSocket } from "@/lib/AppSocket"
-import { getProfileUser } from "@/lib/utils"
 import { useRooms } from "@/hooks/queries"
 import { Participants, RoomWidget } from "@/pages/room/components"
 
@@ -12,7 +11,6 @@ export function Room() {
   const params = useParams()
   const roomId = params.roomId ? parseInt(params.roomId) : NaN
   const { data: events } =  useRoomEvents(roomId)
-
   const room = rooms?.find(room => room.id === roomId)
   const participants = room?.participants ?? []
 
@@ -22,8 +20,7 @@ export function Room() {
       return
     }
     appSocket.init(() => {
-      const profileUser = getProfileUser(user)
-      appSocket.joinRoom(profileUser, roomId)
+      appSocket.joinRoom(roomId)
     })
   }, [user?.id])
 

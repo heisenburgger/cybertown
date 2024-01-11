@@ -1,4 +1,4 @@
 export * from './cors'
-export * from './validateTokensAndSetLocals'
+export * from './setLocals'
 export * from './isAuthenticated'
 export * from './validateBody'

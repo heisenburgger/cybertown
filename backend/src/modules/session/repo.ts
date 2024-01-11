@@ -27,6 +27,7 @@ export const sessionRepo = {
       if(rows.length) {
         return rows[0]
       }
+      return null
     } catch(err) {
       throw err
     }

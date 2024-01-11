@@ -1,29 +1,40 @@
 import { roomRepo } from '@/modules/room/repo'
 import { TServer, TSocket } from '@/types/socket'
 import { RoomMessage } from '@/types/entity-message'
-import { RoomJoinPayload } from '@/types/event-payload'
+import { userRepo } from '@/modules/user/repo'
 
 export function registerRoomHandlers(io: TServer, socket: TSocket) {
-  async function joinRoom(data: RoomJoinPayload) {
+  async function joinRoom(roomId: number) {
     // check if the user part of other rooms (remove from existing room)
     // check if the user is authenticated
+    if(!socket.data.auth) {
+      // send user joining room is failed
+      return
+    }
     // check if the roomID is valid
     try {
-      const room = await roomRepo.getRoom(data.roomId)
-      console.log("room:join [room]:", room?.id)
+      const room = await roomRepo.getRoom(roomId)
       if(!room) {
-        console.log("room:join no room")
         // send user joining room is failed
         return
       }
       if(room) {
-        socket.data.user = data.user
+        const user = await userRepo.get(socket.data.auth.userId)
+        socket.data.user = {
+          id: user.id,
+          avatar: user.avatar,
+          username: user.username,
+        }
+
         // check if the user can join the room (reason: banned, kicked)
-        socket.join(data.roomId.toString())
+        socket.join(`${roomId}`)
 
         // fire an event to all connected clients about this event
-        io.emit("room:participant:joined", data)
-        console.log("room:joined room")
+        io.emit("room:participant:joined", {
+          roomId,
+          user: socket.data.user,
+          joinedAt: Date.now(),
+        })
       }
     } catch(err) {
       console.log("error: room:join:", err)

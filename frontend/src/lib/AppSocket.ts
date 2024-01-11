@@ -13,7 +13,9 @@ class AppSocket {
     }
 
     const url = config.apiURL.replace('/v1', '')
-    this.socket = io(url)
+    this.socket = io(url, {
+      withCredentials: true,
+    })
 
     this.socket.on('connect', () => {
       console.log('connected to server')
@@ -87,12 +89,8 @@ class AppSocket {
     })
   }
   
-  joinRoom = (user: ProfileUser, roomId: number) => {
-    this.socket?.emit('room:participant:join', {
-      roomId, 
-      user: user,
-      joinedAt: Date.now(),
-    })
+  joinRoom = (roomId: number) => {
+    this.socket?.emit('room:participant:join', roomId)
   }
 
   sendMessage = (message: RoomMessage) => {

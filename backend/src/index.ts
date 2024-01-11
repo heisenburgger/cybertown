@@ -8,10 +8,12 @@ import { userRouter } from '@/modules/user/route'
 import { roomRouter } from '@/modules/room/route'
 import { initDB } from '@/db'
 import cookieParser from 'cookie-parser'
+import cookie from 'cookie'
 import http from 'http'
 import { Server } from 'socket.io'
 import { registerRoomHandlers } from '@/socket/registerRoomHandler'
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData, TServer, TSocket } from '@/types/socket'
+import { validateTokens } from './lib/validateTokens'
 
 const app = express()
 export const router = express.Router()
@@ -43,8 +45,23 @@ async function main() {
     io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
       cors: {
         origin: config.allowedOrigins,
+        credentials: true,
         methods: ["GET", "POST"]
       }
+    })
+    io.use(async (socket: TSocket, next) => {
+      const unauthorizedErr = new Error("Unauthorized")
+      const cookieHeader = socket.handshake.headers.cookie
+      if(!cookieHeader) {
+        return next(unauthorizedErr)
+      }
+      const cookies = cookie.parse(cookieHeader)
+      const payload = await validateTokens(cookies)
+      socket.data.auth = payload
+      if(!payload) {
+        return next(unauthorizedErr)
+      }
+      next()
     })
     const onConnection = (socket: TSocket) => {
       registerRoomHandlers(io, socket)

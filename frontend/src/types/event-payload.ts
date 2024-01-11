@@ -1,8 +1,8 @@
 import { ProfileUser } from "@/types/entity"
 
-export type RoomJoinPayload = {
-  user: ProfileUser
+export type RoomJoinedPayload = {
   roomId: number
+  user: ProfileUser
   joinedAt: number
 }
 
