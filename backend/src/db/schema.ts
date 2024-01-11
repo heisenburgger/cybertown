@@ -1,9 +1,10 @@
-import { pgTable, varchar, timestamp, bigserial } from 'drizzle-orm/pg-core'
+import { pgTable, varchar, timestamp, serial, pgEnum, integer, primaryKey } from 'drizzle-orm/pg-core'
+
+// TODO: migration file doesn't contain this?
+const authProviderEnum = pgEnum('provider', ['google', 'github'])
 
 export const users = pgTable('users', {
-  id: varchar('id', {
-    length: 64,
-  }).unique().primaryKey(),
+  id: serial("id").primaryKey(),
   username: varchar('username', {
     length: 64,
   }).notNull(),
@@ -13,16 +14,25 @@ export const users = pgTable('users', {
   bio: varchar('bio', {
     length: 256,
   }),
-  createdAt: timestamp('created_at').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+export const authProviders = pgTable("auth_providers", {
+  provider: authProviderEnum('provider').notNull(),
+  userId: integer('user_id').notNull().references(() => users.id),
+  key: varchar('key', {
+    length: 128,
+  }).notNull(),
+}, (table) => ({
+    pk: primaryKey({ columns: [table.provider, table.key]})
+}))
+
 export const sessions = pgTable('sessions', {
-  id: bigserial("id", {
-    mode: 'number'
-  }).primaryKey(),
-  userId: varchar('user_id').references(() => users.id).notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
+  id: serial("id").primaryKey(),
+  userId: integer('user_id').references(() => users.id).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 export type NewUser = typeof users.$inferInsert;
 export type NewSession = typeof sessions.$inferInsert;
+export type NewAuthProvider = typeof authProviders.$inferInsert;

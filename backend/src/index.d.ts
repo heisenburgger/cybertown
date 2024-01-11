@@ -12,8 +12,8 @@ declare global {
 declare module 'express' {
   interface Response {
     locals: {
-      userId?: string
-      sessionId?: number
+      userId: number
+      sessionId: number
     };
   }
 }

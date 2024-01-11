@@ -1,4 +1,3 @@
-import { NewUser } from "@/db/schema"
 import { Google, AppError, httpStatus, signJWT } from "@/utils"
 import { userInfoSchema } from '@/auth/validation'
 import { config } from "..";
@@ -13,11 +12,10 @@ export const authService = {
       }
       const userInfo = await google.getUserInfo(token)
       const parsedUserInfo = userInfoSchema.parse(userInfo)
-      const user: NewUser = {
-        id: parsedUserInfo.id,
+      const user = {
+        key: parsedUserInfo.id,
         username: parsedUserInfo.name,
         avatar: parsedUserInfo.picture,
-        bio: "",
       }
       return user
     } catch (err) {
@@ -25,7 +23,7 @@ export const authService = {
     }
   },
 
-  createTokens(userId: string, sessionId: number) {
+  createTokens(userId: number, sessionId: number) {
     const accessToken = signJWT({
       userId,
       sessionId,

@@ -7,4 +7,4 @@ export const authRouter = express.Router()
 
 authRouter.get('/login', asyncHandler(loginHandler))
 authRouter.get('/logout', validateTokensAndSetLocals, isAuthenticated, asyncHandler(logoutHandler))
-authRouter.get('/callback', asyncHandler(callbackHandler))
+authRouter.get('/:provider/callback', asyncHandler(callbackHandler))

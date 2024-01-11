@@ -5,6 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/src/index.js",
+    "inspect": "node --inspect-brk dist/src/index.js",
+    "dev": "nodemon --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'ts-node --swc src/index.ts'",
     "build": "tsc && tsc-alias",
     "drizzle:gen-migrations": "drizzle-kit generate:pg",
     "drizzle:run-migrations": "npx tsx src/db/migrate.ts"

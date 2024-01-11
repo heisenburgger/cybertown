@@ -1,24 +1,24 @@
-import { eq, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { NewUser, users } from '@/db/schema'
 import { AppError, httpStatus } from '@/utils'
 
 export const userRepo = {
-  async upsert(user: NewUser) {
+  async create(user: NewUser) {
     try {
-      await db.insert(users).values(user).onConflictDoUpdate({
-        target: users.id,
-        set: {
-          username: sql`EXCLUDED.username`,
-          avatar: sql`EXCLUDED.avatar`,
-        }
+      const insertedUser = await db.insert(users).values(user).returning({
+        id: users.id,
       })
+      if(!insertedUser.length) {
+        throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to create new user")
+      }
+      return insertedUser[0]
     } catch(err) {
       throw err
     }
   },
 
-  async get(userId: string) {
+  async get(userId: number) {
     try {
       const rows = await db.select({
         id: users.id,

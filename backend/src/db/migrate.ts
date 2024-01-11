@@ -4,6 +4,7 @@ import { db, initDB } from '@/db';
 import pg from 'pg'
 import { getConfig, parseEnvVars } from '@/config';
 
+// TODO: why migration script not running?
 async function main() {
   try {
     const envVars = parseEnvVars()
