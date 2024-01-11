@@ -1,4 +1,5 @@
 import { CookieOptions } from "express";
+import { config } from "..";
 
 export const httpStatus = {
   'OK': 200,
@@ -14,3 +15,8 @@ export function cookieOptions(maxAge: number): CookieOptions {
     httpOnly: true,
   }
 }
+
+export function prefixedRoomId(roomId: number) {
+  return config.roomIdPrefix + roomId
+}
+

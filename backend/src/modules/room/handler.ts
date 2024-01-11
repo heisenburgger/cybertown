@@ -3,6 +3,7 @@ import { CreateRoomSchema } from '@/modules/room/validation'
 import { roomRepo } from '@/modules/room/repo'
 import { SocketRoom } from '@/types/entity'
 import { io } from '@/index'
+import { prefixedRoomId } from '@/lib/utils'
 
 export async function createRoomHandler(req: Request, res: Response, _next: NextFunction) {
   const userId = res.locals.userId
@@ -26,7 +27,8 @@ export async function getRoomsHandler(_req: Request, res: Response, _next: NextF
   const rooms = await roomRepo.getRooms() as SocketRoom[]
   for(let room of rooms) {
     room.participants = []
-    const participantSockets = await io.in(room.id.toString()).fetchSockets()
+    const socketRoomId = prefixedRoomId(room.id)
+    const participantSockets = await io.in(socketRoomId).fetchSockets()
     participantSockets.forEach(socket => {
       if(socket.data.user) {
         room.participants.push(socket.data.user)

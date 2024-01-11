@@ -4,7 +4,7 @@ export function parseEnvVars() {
   const parsedEnv = envSchema.safeParse(process.env)
   if(!parsedEnv.success) {
     const missingVars = parsedEnv.error.issues.map(el => el.path).join(', ')
-    throw new Error(`missing env vars: ${missingVars}`)
+    throw new Error(`missing or invalid env vars: ${missingVars}`)
   }
   return parsedEnv.data
 }
@@ -25,6 +25,7 @@ export function getConfig(envVars: EnvSchema) {
     allowedOrigins: envVars.ALLOWED_ORIGINS,
     port: envVars.PORT,
     webRedirectURL: envVars.WEB_REDIRECT_URL,
+    roomIdPrefix: envVars.ROOM_ID_PREFIX,
   }
 }
 

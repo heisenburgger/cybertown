@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client"
 import { ProfileUser } from "./entity"
-import { Room, RoomJoinedPayload, RoomLeavePayload, RoomMessage } from "@/types"
+import { Room, RoomJoinedPayload, RoomLeavePayload, RoomMessage, RoomMessageReq } from "@/types"
 
 export interface ServerToClientEvents {
   'room:participant:joined': (data: RoomJoinedPayload) => void
@@ -12,7 +12,7 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   'room:participant:join': (roomId: number) => void
-  'room:message:send': (message: RoomMessage) => void
+  'room:message:send': (data: RoomMessageReq) => void
 }
 
 export interface InterServerEvents { }

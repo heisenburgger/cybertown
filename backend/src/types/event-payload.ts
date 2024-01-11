@@ -11,3 +11,8 @@ export type RoomLeavePayload = {
   roomId: number
   leftAt: number
 }
+
+export type RoomMessageReq = {
+  content: string
+  roomId: number
+}

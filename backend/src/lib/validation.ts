@@ -11,6 +11,7 @@ export const envSchema = z.object({
   GOOGLE_CALLBACK_URL: z.string().url(),
   PORT: z.coerce.number(),
   ALLOWED_ORIGINS: z.string().transform(val => val.split(',')),
+  ROOM_ID_PREFIX: z.string().endsWith(":"),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>

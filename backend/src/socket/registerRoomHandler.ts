@@ -2,24 +2,32 @@ import { roomRepo } from '@/modules/room/repo'
 import { TServer, TSocket } from '@/types/socket'
 import { RoomMessage } from '@/types/entity-message'
 import { userRepo } from '@/modules/user/repo'
+import { RoomMessageReq } from '@/types/event-payload'
+import crypto from 'crypto'
+import { prefixedRoomId } from '@/lib/utils'
+import { config } from '..'
+
 
 export function registerRoomHandlers(io: TServer, socket: TSocket) {
+  function hasPermissions() {
+    const auth = socket.data.auth
+    return auth !== null
+  }
+
   async function joinRoom(roomId: number) {
     // check if the user part of other rooms (remove from existing room)
-    // check if the user is authenticated
-    if(!socket.data.auth) {
-      // send user joining room is failed
+    if(!hasPermissions()) {
+      console.error("error: joinRoom: unauthorized")
       return
     }
-    // check if the roomID is valid
     try {
       const room = await roomRepo.getRoom(roomId)
       if(!room) {
-        // send user joining room is failed
+        console.error("error: joinRoom: invalid room")
         return
       }
       if(room) {
-        const user = await userRepo.get(socket.data.auth.userId)
+        const user = await userRepo.get(socket.data.auth?.userId!)
         socket.data.user = {
           id: user.id,
           avatar: user.avatar,
@@ -27,9 +35,8 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
         }
 
         // check if the user can join the room (reason: banned, kicked)
-        socket.join(`${roomId}`)
+        socket.join(prefixedRoomId(roomId))
 
-        // fire an event to all connected clients about this event
         io.emit("room:participant:joined", {
           roomId,
           user: socket.data.user,
@@ -41,19 +48,39 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
     }
   }
 
-  function broadcastMessage(message: RoomMessage) {
-    const roomId = message.roomId.toString()
-    io.in(roomId).emit('room:message:broadcast', message)
+  function broadcastMessage(message: RoomMessageReq) {
+    if(!hasPermissions()) {
+      console.error("error: broadcastMessage: unauthorized")
+      return
+    }
+
+    const socketRoomId = prefixedRoomId(message.roomId)
+    const isInRoom = socket.rooms.has(socketRoomId)
+    if(!isInRoom) {
+      console.error("error: broadcastMessage: not in room")
+      return
+    }
+
+    const roomMessage: RoomMessage = {
+      id: crypto.randomUUID(),
+      sentAt: Date.now(),
+      from: socket.data.user,
+      // TODO: validate the incoming `message`
+      content: message.content, 
+      roomId: message.roomId,
+    }
+
+    io.in(socketRoomId).emit('room:message:broadcast', roomMessage)
   }
 
   function leaveRoom() {
-    // TODO: prefix the roomId with identifier
-    const rooms = Array.from(socket.rooms)
+    const rooms = Array.from(socket.rooms).filter(el => el.startsWith(config.roomIdPrefix))
     rooms.forEach(room => {
-      const roomId = parseInt(room)
+      const segments = room.split(":")
+      const roomId = parseInt(segments[1])
       if(socket.data.user && !isNaN(roomId)) {
         io.emit("room:participant:left", {
-          roomId: parseInt(room),
+          roomId,
           user: socket.data.user,
           leftAt: Date.now(),
         })

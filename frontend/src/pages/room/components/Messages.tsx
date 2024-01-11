@@ -3,7 +3,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useMe } from "@/hooks/queries"
 import { appSocket } from "@/lib/AppSocket"
 import { getProfileUser } from "@/lib/utils"
-import { RoomEvent, RoomMessage } from "@/types"
+import { RoomEvent, RoomMessage, RoomMessageReq } from "@/types"
 import { Log, Message } from '@/pages/room/components'
 
 type Props = {
@@ -20,11 +20,8 @@ export function Messages(props: Props) {
     if(!user || !textareaRef.current) {
       return
     }
-    const message: RoomMessage = {
-      id: crypto.randomUUID(),
+    const message: RoomMessageReq = {
       content,
-      from: getProfileUser(user),
-      sentAt: Date.now(),
       roomId 
     }
     appSocket.sendMessage(message)
