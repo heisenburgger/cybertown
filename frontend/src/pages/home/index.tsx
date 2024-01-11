@@ -1,10 +1,7 @@
-import { useMe } from "@/hooks/queries";
-import { Auth } from "./components/Auth";
-import { CreateRoom } from "./components/CreateRoom";
 import { useEffect, useState } from "react";
-import { useRooms } from "@/hooks/queries/useRooms";
+import { CreateRoom, RoomCard, Auth } from "@/pages/home/components";
 import { appSocket } from "@/lib/AppSocket";
-import { RoomCard } from "./components/RoomCard";
+import { useMe, useRooms } from "@/hooks/queries";
 
 // TODO: show skeleton loader and empty state for rooms
 export function Home() {

@@ -1,11 +1,10 @@
+import { useRef } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { useMe } from "@/hooks/queries"
 import { appSocket } from "@/lib/AppSocket"
 import { getProfileUser } from "@/lib/utils"
 import { RoomEvent, RoomMessage } from "@/types"
-import { useRef } from "react"
-import { Message } from "./Message"
-import { Log } from "./Log"
+import { Log, Message } from '@/pages/room/components'
 
 type Props = {
   roomId: number
@@ -40,7 +39,6 @@ export function Messages(props: Props) {
             const message = event.payload
             return <Message key={message.id} message={message}  />
           }
-          // TODO: handle logs
           return <Log key={i} log={event} />
         })}
       </div>

@@ -1,5 +1,5 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
-import { getAvatarFallback, getProfileUser, getTime } from "@/lib/utils"
+import { getAvatarFallback, getTime } from "@/lib/utils"
 import { RoomMessage } from "@/types"
 import { AvatarFallback } from "@radix-ui/react-avatar"
 

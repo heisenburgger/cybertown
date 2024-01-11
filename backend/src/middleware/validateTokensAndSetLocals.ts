@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction  } from 'express'
-import { signJWT, verifyJWT } from '@/utils/jwt'
-import { sessionRepo } from '@/session/repo'
-import { cookieOptions } from '@/utils/cookie'
+import { signJWT, verifyJWT } from '@/lib/jwt'
+import { sessionRepo } from '@/modules/session/repo'
+import { cookieOptions } from '@/lib/utils'
 import ms from 'ms'
 import { config } from '..'
 

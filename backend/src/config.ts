@@ -1,4 +1,4 @@
-import { EnvSchema, envSchema } from "@/utils"
+import { EnvSchema, envSchema } from "@/lib/validation"
 
 export function parseEnvVars() {
   const parsedEnv = envSchema.safeParse(process.env)
@@ -12,11 +12,11 @@ export function parseEnvVars() {
 export function getConfig(envVars: EnvSchema) {
   return {
     google: {
-      redirectURL: envVars.GOOGLE_CALLBACK_URL,
+      callbackURL: envVars.GOOGLE_CALLBACK_URL,
       clientID: envVars.GOOGLE_CLIENT_ID,
       clientSecret: envVars.GOOGLE_CLIENT_SECRET,
     },
-    postgreDSN: envVars.POSTGRES_DSN,
+    postgresDSN: envVars.POSTGRES_DSN,
     jwt: {
       secret: envVars.JWT_SECRET,
       accessTokenExpiry: envVars.JWT_ACCESS_TOKEN_EXPIRY,

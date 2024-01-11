@@ -1,6 +1,7 @@
 import { AnyZodObject } from "zod";
 import { Request, Response, NextFunction } from 'express'
-import { AppError, httpStatus } from "@/utils";
+import { httpStatus } from "@/lib/utils";
+import { AppError } from "@/lib/AppError";
 
 export function validateBody(schema: AnyZodObject) {
   return (req: Request, _res: Response, next: NextFunction) => {

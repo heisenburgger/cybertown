@@ -1,6 +1,7 @@
 import { config } from "@/config"
-import { fetchios } from "."
-import { User, NewRoom, SocketRoom } from "@/types"
+import { fetchios } from "@/lib/fetchios"
+import { SocketRoom, User } from "@/types"
+import { CreateRoom } from '@/pages/home/components'
 
 export const api = {
   async whoAmI() {
@@ -17,7 +18,7 @@ export const api = {
     return data?.message ?? null
   },
 
-  async createRoom(room: NewRoom) {
+  async createRoom(room: CreateRoom) {
     const url = config.apiURL + "/rooms"
     const data = await fetchios<"roomId", number>(url, {
       method: "POST",

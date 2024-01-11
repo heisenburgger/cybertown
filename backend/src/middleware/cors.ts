@@ -6,10 +6,9 @@ export function cors(req: Request, res: Response, next: NextFunction) {
     if(origin === req.get('Origin')) {
       res.setHeader('Access-Control-Allow-Origin', origin)
       res.setHeader('Access-Control-Allow-Credentials', 'true')
-
       // handling the preflight request
       if(req.method === 'OPTIONS' && req.get('Access-Control-Request-Method')) {
-        res.setHeader('Access-Control-Allow-Methods', 'POST,DELETE,UPDATE')
+        res.setHeader('Access-Control-Allow-Methods', 'POST,DELETE,PUT')
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
         return res.send('OK')
       }

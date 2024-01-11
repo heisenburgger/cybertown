@@ -9,7 +9,7 @@ export let db: NodePgDatabase<typeof schema>
 export async function initDB(config: Config) {
   try {
     const pool = new Pool({
-      connectionString: config.postgreDSN
+      connectionString: config.postgresDSN
     })
     await pool.connect()
     db = drizzle(pool, { schema, logger: false })

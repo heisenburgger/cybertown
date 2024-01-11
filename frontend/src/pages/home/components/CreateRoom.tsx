@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/form"
 import { useEffect } from "react"
 import { Loader2 } from "lucide-react"
-import { useCreateRoom } from "@/hooks/queries/useCreateRoom"
+import { useCreateRoom } from "@/hooks/mutations"
 import { useMe } from "@/hooks/queries"
 
 type Props = {
@@ -36,7 +36,7 @@ type Props = {
   setOpen: (open: boolean) => void
 }
 
-const newRoomSchema = z.object({
+const createRoomSchema = z.object({
   topic: z.string().optional(),
   maxParticipants: z.string(),
   language: z.string().min(2, {
@@ -44,14 +44,15 @@ const newRoomSchema = z.object({
   })
 })
 
+
 export function CreateRoom(props: Props) {
   const { open, setOpen } = props
   const { mutateAsync: createRoomMutate, status } =  useCreateRoom()
   const loading = status === "pending"
   const { data: user } = useMe()
 
-  const form = useForm<z.infer<typeof newRoomSchema>>({
-    resolver: zodResolver(newRoomSchema),
+  const form = useForm<z.infer<typeof createRoomSchema>>({
+    resolver: zodResolver(createRoomSchema),
     values: {
       topic: "",
       maxParticipants: "5",
@@ -60,7 +61,7 @@ export function CreateRoom(props: Props) {
   })
 
   // TODO: show alert if this failed
-  async function onSubmit(values: z.infer<typeof newRoomSchema>) {
+  async function onSubmit(values: z.infer<typeof createRoomSchema>) {
     if(!user) {
       return
     }
@@ -69,10 +70,6 @@ export function CreateRoom(props: Props) {
       await createRoomMutate({
         ...values,
         maxParticipants: parseInt(values.maxParticipants),
-        metadata: {
-          owner: user.id,
-          coOwners: [],
-        }
       })
       setOpen(false)
     } catch(err) {
@@ -89,7 +86,7 @@ export function CreateRoom(props: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Create Room</Button>
+        <Button variant="outline" className="rounded-lg">Create Room</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]" forceMount>
         <DialogHeader className="mb-4">
@@ -175,4 +172,8 @@ export function CreateRoom(props: Props) {
       </DialogContent>
     </Dialog>
   )
+}
+
+export type CreateRoom = Omit<z.infer<typeof createRoomSchema>, 'maxParticipants'> & {
+  maxParticipants: number
 }

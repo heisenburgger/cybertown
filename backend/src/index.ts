@@ -1,20 +1,22 @@
 import 'dotenv/config'
 import express from 'express'
-import { cors } from '@/middleware'
-import { errorHandler, notFoundHandler } from '@/utils'
+import { cors } from '@/middleware/cors'
+import { errorHandler, notFoundHandler } from '@/lib/handler'
 import { getConfig, parseEnvVars } from '@/config'
-import { authRouter } from '@/auth'
-import { userRouter } from '@/user'
-import { roomRouter } from '@/room'
+import { authRouter } from '@/modules/auth/route'
+import { userRouter } from '@/modules/user/route'
+import { roomRouter } from '@/modules/room/route'
 import { initDB } from '@/db'
 import cookieParser from 'cookie-parser'
 import http from 'http'
 import { Server } from 'socket.io'
-import { registerRoomHandlers } from './socket/registerRoomHandler'
-import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData, TServer, TSocket } from './socket/types'
+import { registerRoomHandlers } from '@/socket/registerRoomHandler'
+import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData, TServer, TSocket } from '@/types/socket'
 
 const app = express()
 export const router = express.Router()
+
+// globals (sorry I still don't understand dependency injection)
 export let config: ReturnType<typeof getConfig>
 export let io: TServer
 
@@ -37,22 +39,17 @@ async function main() {
     const envVars = parseEnvVars()
     config = getConfig(envVars)
     await initDB(config)
-
     const httpServer = http.createServer(app)
-
     io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
       cors: {
         origin: config.allowedOrigins,
         methods: ["GET", "POST"]
       }
     })
-
     const onConnection = (socket: TSocket) => {
       registerRoomHandlers(io, socket)
     }
-
     io.on("connection", onConnection)
-
     httpServer.listen(config.port, () => {
       console.log(`server started at port ${config.port}`)
     })

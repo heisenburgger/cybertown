@@ -1,5 +1,6 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLogout } from "@/hooks/mutations";
+import { Loader2 } from "lucide-react";
 
 type Props = {
   open: boolean
@@ -8,7 +9,18 @@ type Props = {
 
 export function ConfirmLogout(props: Props) {
   const { open, setOpen } = props
-  const { mutate: logoutMutate } = useLogout()
+  const { mutateAsync: logoutMutate, status } = useLogout()
+  const loading = status === "pending"
+
+  async function handleConfirm(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault()
+    try  {
+      await logoutMutate()
+      setOpen(false)
+    } catch(err) {
+      console.log("error: failed to log out:", err)
+    }
+  }
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -21,7 +33,10 @@ export function ConfirmLogout(props: Props) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="rounded" onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction className="rounded" onClick={() => logoutMutate()}>Continue</AlertDialogAction>
+          <AlertDialogAction disabled={loading} className="rounded" onClick={handleConfirm}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <span>Continue</span>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -1,5 +1,5 @@
+import { ProfileUser, User } from "@/types"
 import { type ClassValue, clsx } from "clsx"
-import { User, ProfileUser } from '@/types'
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {

@@ -1,7 +1,7 @@
 import { config } from '@/config'
-import { queryClient } from '@/main'
-import { ProfileUser, RoomEvent, RoomMessage, TSocket, User } from '@/types'
 import io from 'socket.io-client'
+import { queryClient } from '@/lib/queryClient'
+import { ProfileUser, RoomEvent, RoomMessage, TSocket, User } from '@/types'
 
 class AppSocket {
   socket: TSocket | null = null
@@ -20,8 +20,8 @@ class AppSocket {
       cb()
     })
 
-    this.socket.on('room:message:received', data => {
-      console.log('room:message:received', data)
+    this.socket.on('room:message:broadcast', data => {
+      console.log('room:message:broadcast', data)
       queryClient.setQueriesData({
         queryKey: ['room:events', data.roomId]
       }, (oldData) => {
@@ -55,6 +55,20 @@ class AppSocket {
       })
     })
 
+    this.socket.on('room:updated', data => {
+      console.log('room:updated:', data)
+      queryClient.invalidateQueries({
+        queryKey: ['rooms']
+      })
+    })
+
+    this.socket.on('room:created', data => {
+      console.log('room:created:', data)
+      queryClient.invalidateQueries({
+        queryKey: ['rooms']
+      })
+    })
+
     this.socket.on('room:participant:left', data => {
       console.log('room:participant:left:', data)
       queryClient.setQueriesData({
@@ -74,7 +88,7 @@ class AppSocket {
   }
   
   joinRoom = (user: ProfileUser, roomId: number) => {
-    this.socket?.emit('room:join', {
+    this.socket?.emit('room:participant:join', {
       roomId, 
       user: user,
       joinedAt: Date.now(),

@@ -1,6 +1,7 @@
-import { roomRepo } from '@/room'
-import { RoomJoinPayload, TServer, TSocket } from './types'
-import { RoomMessage } from '@/types'
+import { roomRepo } from '@/modules/room/repo'
+import { TServer, TSocket } from '@/types/socket'
+import { RoomMessage } from '@/types/entity-message'
+import { RoomJoinPayload } from '@/types/event-payload'
 
 export function registerRoomHandlers(io: TServer, socket: TSocket) {
   async function joinRoom(data: RoomJoinPayload) {
@@ -31,7 +32,7 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
 
   function broadcastMessage(message: RoomMessage) {
     const roomId = message.roomId.toString()
-    io.in(roomId).emit('room:message:received', message)
+    io.in(roomId).emit('room:message:broadcast', message)
   }
 
   function leaveRoom() {
@@ -49,7 +50,7 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
     })
   }
 
-  socket.on("room:join", joinRoom)
+  socket.on("room:participant:join", joinRoom)
   socket.on("disconnecting", leaveRoom)
   socket.on("room:message:send", broadcastMessage)
 }

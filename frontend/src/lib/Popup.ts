@@ -26,12 +26,14 @@ class Popup {
 
   // listens for incoming message after the popup
   // redirected to "auth-redirect" route
-  listen = async(e: MessageEvent) => {
+  listen = async(e: MessageEvent<{ type: string }>) => {
     if (e.origin !== config.baseURL) {
       return
     }
-    for(let fn of this.callbacks) {
-      await fn()
+    if(e.data.type === 'REDIRECTED') {
+      for(let fn of this.callbacks) {
+        await fn()
+      }
     }
   }
 
@@ -40,5 +42,4 @@ class Popup {
   }
 }
 
-// singleton (i know big words)
 export const authPopup = new Popup()

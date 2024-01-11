@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { config } from "@/config";
-import { useMe } from "@/hooks/queries";
-import { authPopup } from "@/lib";
-import { LogoutIcon, UserIcon } from "@/icons";
 import { Link } from 'react-router-dom'
-import { ConfirmLogout } from "./ConfirmLogout";
+import { ConfirmLogout } from "@/pages/home/components";
 import { getAvatarFallback } from "@/lib/utils";
+import { useMe } from "@/hooks/queries";
+import { authPopup } from "@/lib/Popup";
+import { LogoutIcon, UserIcon } from "@/icons";
 
 export function Auth() {
   const [open, setOpen] = useState(false)
@@ -23,11 +23,11 @@ export function Auth() {
   return (
     <div className="ml-auto">
       {!user ? (
-        <Button variant="outline" onClick={login}>Log In</Button>
+        <Button variant="outline" className="rounded-lg" onClick={login}>Log In</Button>
       ) : (
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="p-0 px-2 py-5 flex gap-4">
+            <Button variant="outline" className="p-0 px-2 py-5 flex gap-4 rounded-lg">
               <Avatar className="rounded-full h-6 w-6">
                 <AvatarImage src={user.avatar} alt={user.username} />
                 <AvatarFallback>{getAvatarFallback(user.username)}</AvatarFallback>

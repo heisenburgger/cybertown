@@ -5,11 +5,11 @@ export function AuthRedirect() {
 
   useEffect(() => {
     if(window.opener && !messageSentRef.current) {
+      messageSentRef.current = true
       window.opener.postMessage({
         type: "REDIRECTED"
       })
       window.close()
-      messageSentRef.current = true
     }
   }, [])
 

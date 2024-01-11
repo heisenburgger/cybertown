@@ -1,11 +1,10 @@
-import { useMe, useRoomEvents } from "@/hooks/queries"
-import { appSocket } from "@/lib/AppSocket"
 import { useEffect } from "react"
 import { useParams } from "react-router-dom"
-import { RoomWidget } from "./components/RoomWidget"
+import { useMe, useRoomEvents } from "@/hooks/queries"
+import { appSocket } from "@/lib/AppSocket"
 import { getProfileUser } from "@/lib/utils"
-import { useRooms } from "@/hooks/queries/useRooms"
-import { Participants } from "./components/Participants"
+import { useRooms } from "@/hooks/queries"
+import { Participants, RoomWidget } from "@/pages/room/components"
 
 export function Room() {
   const { data: user } = useMe()
@@ -33,9 +32,13 @@ export function Room() {
       <div className="flex flex-col">
         <div className="flex-1">
         </div>
-        <Participants participants={participants} />
+        {room && (
+          <Participants participants={participants} room={room} />
+        )}
       </div>
-      <RoomWidget roomId={roomId} events={events ?? []} />
+      {room && (
+        <RoomWidget room={room} events={events ?? []} />
+      )}
     </div>
   )
 }

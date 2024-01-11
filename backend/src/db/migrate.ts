@@ -11,7 +11,7 @@ async function main() {
     const config = getConfig(envVars)
     await initDB(config)
     const connection = new pg.Connection({
-      connectionString: config.postgreDSN
+      connectionString: config.postgresDSN
     });
     await migrate(db, { migrationsFolder: '../drizzle' });
     connection.end();
