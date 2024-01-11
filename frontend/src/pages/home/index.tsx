@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TCreateRoom, RoomCard, Auth } from "@/pages/home/components";
+import { CreateRoom, RoomCard, Auth } from "@/pages/home/components";
 import { appSocket } from "@/lib/AppSocket";
 import { useMe, useRooms } from "@/hooks/queries";
 import { Button } from "@/components/ui/button";
