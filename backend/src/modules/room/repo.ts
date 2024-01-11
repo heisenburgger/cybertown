@@ -1,16 +1,21 @@
 import { db } from "@/db"
 import { rooms } from "@/db/schema"
 import { httpStatus } from "@/lib/utils"
-import { NewRoom } from '@/types/entity'
+import { NewRoom, Room } from '@/types/entity'
 import { AppError } from "@/lib/AppError"
+import { eq } from "drizzle-orm"
 
 export const roomRepo = {
   async create(room: NewRoom) {
-    const newRoom = await db.insert(rooms).values(room).returning()
-    if (!newRoom.length) {
-      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to create room")
+    try {
+      const newRoom = await db.insert(rooms).values(room).returning()
+      if (!newRoom.length) {
+        throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to create room")
+      }
+      return newRoom[0]
+    } catch(err) {
+      throw err
     }
-    return newRoom[0]
   },
 
   async getRooms() {
@@ -27,7 +32,16 @@ export const roomRepo = {
         where: (rooms, { eq }) => eq(rooms.id, roomId)
       })
     } catch (err) {
-      throw new Error(`Failed to get room: ${roomId}`)
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Failed to get room: ${roomId}`)
+    }
+  },
+
+  async updateRoom(room: Room, roomId: number) {
+    try {
+      const result = await db.update(rooms).set(room).where(eq(rooms.id, roomId)).returning()
+      return result[0]
+    } catch (err) {
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Failed to update room: ${roomId}`)
     }
   },
 }

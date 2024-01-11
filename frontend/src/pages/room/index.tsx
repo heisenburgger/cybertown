@@ -24,18 +24,20 @@ export function Room() {
     })
   }, [user?.id])
 
+  // TODO: show cool loading status (a rocket launching?)
+  if(!user || !room) {
+    return null
+  }
+
   return (
     <div className="h-full grid grid-cols-[1fr_400px]">
       <div className="flex flex-col">
-        <div className="flex-1">
+        <div className="flex-1 flex items-center justify-center">
+          {room.metadata.welcomeMessage?.replace('[username]', user.username)}
         </div>
-        {room && (
-          <Participants participants={participants} room={room} />
-        )}
+        <Participants participants={participants} room={room} />
       </div>
-      {room && (
-        <RoomWidget room={room} events={events ?? []} />
-      )}
+      <RoomWidget room={room} events={events ?? []} />
     </div>
   )
 }

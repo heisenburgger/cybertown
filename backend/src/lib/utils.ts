@@ -7,6 +7,7 @@ export const httpStatus = {
   'UNAUTHORIZED': 401,
   'UNPROCESSABLE_ENTITY': 422,
   'NOT_FOUND': 404,
+  'BAD_REQUEST': 400,
 } as const
 
 export function cookieOptions(maxAge: number): CookieOptions {

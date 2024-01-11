@@ -18,7 +18,7 @@ export function Log(props: Props) {
       <p>{`[${getTime(occuredAt)}]`} {user.username} {log.type === 'log:join' ? 'Joined' : 'Left'}</p>
       <Avatar key={user.id} className="w-5 h-5 rounded-sm">
         <AvatarImage src={user.avatar} alt={user.username} />
-        <AvatarFallback>{getAvatarFallback(user.avatar)}</AvatarFallback>
+        <AvatarFallback className="w-5 h-5 rounded-sm">{getAvatarFallback(user.avatar)}</AvatarFallback>
       </Avatar>
     </div>
   )

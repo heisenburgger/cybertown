@@ -24,7 +24,7 @@ export function Participants(props: Props) {
           <div key={participant.id} className="relative group">
             <Avatar className="w-20 h-20 rounded-lg">
               <AvatarImage src={participant.avatar} alt={participant.username} />
-              <AvatarFallback>{getAvatarFallback(participant.avatar)}</AvatarFallback>
+              <AvatarFallback className="rounded-lg">{getAvatarFallback(participant.avatar)}</AvatarFallback>
             </Avatar>
             {participant.id === room.metadata.owner  && (
               <TooltipProvider>

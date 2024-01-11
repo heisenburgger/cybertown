@@ -30,6 +30,7 @@ import { useEffect } from "react"
 import { Loader2 } from "lucide-react"
 import { useCreateRoom } from "@/hooks/mutations"
 import { useMe } from "@/hooks/queries"
+import { toast } from "sonner"
 
 type Props = {
   open: boolean
@@ -60,12 +61,10 @@ export function CreateRoom(props: Props) {
     }
   })
 
-  // TODO: show alert if this failed
   async function onSubmit(values: z.infer<typeof createRoomSchema>) {
     if(!user) {
       return
     }
-
     try {
       await createRoomMutate({
         ...values,
@@ -74,6 +73,7 @@ export function CreateRoom(props: Props) {
       setOpen(false)
     } catch(err) {
       console.error("error: failed to create room:", err)
+      toast.error("Failed to create room")
     }
   }
 

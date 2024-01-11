@@ -1,7 +1,7 @@
 import { config } from '@/config'
 import io from 'socket.io-client'
 import { queryClient } from '@/lib/queryClient'
-import { ProfileUser, RoomEvent, RoomMessage, RoomMessageReq, TSocket, User } from '@/types'
+import { RoomEvent, RoomMessageReq, TSocket, User } from '@/types'
 
 class AppSocket {
   socket: TSocket | null = null

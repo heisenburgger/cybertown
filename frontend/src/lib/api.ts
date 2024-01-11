@@ -1,35 +1,44 @@
 import { config } from "@/config"
-import { fetchios } from "@/lib/fetchios"
-import { SocketRoom, User } from "@/types"
+import { fetchWrapper } from "@/lib/fetchWrapper"
+import { SocketRoom, User, UpdateRoom, Room } from "@/types"
 import { CreateRoom } from '@/pages/home/components'
 
 export const api = {
   async whoAmI() {
     const url = config.apiURL + "/users/me"
-    const data = await fetchios<"user", User>(url)
-    return data?.user ?? null
+    const data = await fetchWrapper<"user", User>(url)
+    return data.user
   },
 
   async logOut() {
     const url = config.apiURL + "/auth/logout"
-    const data = await fetchios<"message", string>(url, {
+    const data = await fetchWrapper<"message", string>(url, {
       method: "DELETE"
     })
-    return data?.message ?? null
+    return data.message
   },
 
   async createRoom(room: CreateRoom) {
     const url = config.apiURL + "/rooms"
-    const data = await fetchios<"roomId", number>(url, {
+    const data = await fetchWrapper<"roomId", number>(url, {
       method: "POST",
       body: JSON.stringify(room)
     })
-    return data?.roomId ?? null
+    return data.roomId
   },
 
   async getRooms() {
     const url = config.apiURL + "/rooms"
-    const data = await fetchios<"rooms", SocketRoom[]>(url)
-    return data?.rooms ?? null
+    const data = await fetchWrapper<"rooms", SocketRoom[]>(url)
+    return data.rooms
+  },
+
+  async updateRoom(room: UpdateRoom, roomId: number) {
+    const url = config.apiURL + `/rooms/${roomId}`
+    const data = await fetchWrapper<"room", Room[]>(url, {
+      method: "PUT",
+      body: JSON.stringify(room),
+    })
+    return data.room
   },
 }

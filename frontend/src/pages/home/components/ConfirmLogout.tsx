@@ -1,6 +1,7 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLogout } from "@/hooks/mutations";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 type Props = {
   open: boolean
@@ -15,10 +16,11 @@ export function ConfirmLogout(props: Props) {
   async function handleConfirm(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
     try  {
-      await logoutMutate()
+      logoutMutate()
       setOpen(false)
     } catch(err) {
       console.log("error: failed to log out:", err)
+      toast.error("Logout failed")
     }
   }
 

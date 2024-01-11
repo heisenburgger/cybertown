@@ -9,17 +9,8 @@ import { config } from '..'
 
 
 export function registerRoomHandlers(io: TServer, socket: TSocket) {
-  function hasPermissions() {
-    const auth = socket.data.auth
-    return auth !== null
-  }
-
   async function joinRoom(roomId: number) {
     // check if the user part of other rooms (remove from existing room)
-    if (!hasPermissions()) {
-      console.error("error: joinRoom: unauthorized")
-      return
-    }
     try {
       const room = await roomRepo.getRoom(roomId)
       if (!room) {
@@ -32,7 +23,6 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
         avatar: user.avatar,
         username: user.username,
       }
-
       // check if the user can join the room (reason: banned, kicked)
       socket.join(prefixedRoomId(roomId))
 
@@ -47,18 +37,12 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
   }
 
   function broadcastMessage(message: RoomMessageReq) {
-    if (!hasPermissions()) {
-      console.error("error: broadcastMessage: unauthorized")
-      return
-    }
-
     const socketRoomId = prefixedRoomId(message.roomId)
     const isInRoom = socket.rooms.has(socketRoomId)
     if (!isInRoom) {
       console.error("error: broadcastMessage: not in room")
       return
     }
-
     const roomMessage: RoomMessage = {
       id: crypto.randomUUID(),
       sentAt: Date.now(),
@@ -67,7 +51,6 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
       content: message.content,
       roomId: message.roomId,
     }
-
     io.in(socketRoomId).emit('room:message:broadcast', roomMessage)
   }
 
