@@ -57,6 +57,6 @@ export async function callbackHandler(req: Request, res: Response) {
 
   res.cookie("accessToken", accessToken, createCookie(accessTokenExpiry))
   res.cookie("refreshToken", refreshToken, createCookie(refreshTokenExpiry))
-  return res.redirect(config.domain)
+  return res.redirect(config.webRedirectURL)
 }
 

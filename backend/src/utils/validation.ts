@@ -7,7 +7,7 @@ export const envSchema = z.object({
   JWT_SECRET: z.string(),
   JWT_ACCESS_TOKEN_EXPIRY: z.string(),
   JWT_REFRESH_TOKEN_EXPIRY: z.string(),
-  DOMAIN: z.string().url(),
+  WEB_REDIRECT_URL: z.string().url(),
   GOOGLE_CALLBACK_URL: z.string().url(),
   PORT: z.coerce.number(),
   ALLOWED_ORIGINS: z.string().transform(val => val.split(',')),

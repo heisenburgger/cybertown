@@ -25,7 +25,7 @@ export function getConfig(envVars: z.infer<typeof envSchema>) {
     },
     allowedOrigins: envVars.ALLOWED_ORIGINS,
     port: envVars.PORT,
-    domain: envVars.DOMAIN,
+    webRedirectURL: envVars.WEB_REDIRECT_URL,
   }
 }
 
