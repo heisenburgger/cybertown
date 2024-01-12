@@ -1,4 +1,3 @@
-import { on } from "events"
 import { Router } from "mediasoup/node/lib/Router"
 import { Worker } from "mediasoup/node/lib/Worker"
 import { DtlsParameters, IceCandidate, IceParameters, MediaKind, RtpCapabilities, RtpParameters } from "mediasoup/node/lib/types"

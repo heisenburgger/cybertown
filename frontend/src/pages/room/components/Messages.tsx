@@ -1,6 +1,6 @@
 import { Textarea } from "@/components/ui/textarea"
 import { useMe } from "@/hooks/queries"
-import { appSocket } from "@/lib/AppSocket"
+import { appSocket } from "@/lib/socket/AppSocket"
 import { RoomEvent, RoomMessageReq, RoomPrivateMessageReq } from "@/types"
 import { Log, Message } from '@/pages/room/components'
 import { InPM, SetState } from ".."

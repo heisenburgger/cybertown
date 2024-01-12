@@ -10,10 +10,10 @@ import { initDB } from '@/db'
 import cookieParser from 'cookie-parser'
 import http from 'http'
 import { Server } from 'socket.io'
-import { registerRoomHandlers } from '@/socket/registerRoomHandler'
+import { registerRoomHandlers } from '@/socket/registerRoomHandlers'
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData, TServer, TSocket } from '@/types/socket'
 import { isSocketAuthenticated } from '@/middleware'
-import { appWorker } from '@/mediasoup/AppWorker'
+import { AppMediasoup } from './mediasoup/AppMediasoup'
 
 const app = express()
 export const router = express.Router()
@@ -21,6 +21,7 @@ export const router = express.Router()
 // globals (sorry I still don't understand dependency injection)
 export let config: ReturnType<typeof getConfig>
 export let io: TServer
+export let appMediasoup: AppMediasoup
 
 // middlewares
 app.use(cors)
@@ -41,7 +42,7 @@ async function main() {
     const envVars = parseEnvVars()
     config = getConfig(envVars)
     await initDB(config)
-    await appWorker.create()
+    await appMediasoup.createWorkers()
     const httpServer = http.createServer(app)
     io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
       cors: {

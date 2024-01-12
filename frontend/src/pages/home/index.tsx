@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CreateRoom, RoomCard, Auth } from "@/pages/home/components";
-import { appSocket } from "@/lib/AppSocket";
+import { appSocket } from "@/lib/socket/AppSocket";
 import { useMe, useRooms } from "@/hooks/queries";
 import { Button } from "@/components/ui/button";
 

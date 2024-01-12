@@ -1,7 +1,7 @@
 import { TransportDirection, TransportOptions } from '@/types'
 import { Device } from 'mediasoup-client'
 import { RtpCapabilities } from 'mediasoup-client/lib/RtpParameters'
-import { appSocket } from './AppSocket'
+import { appSocket } from '@/lib/socket/AppSocket'
 import { Transport } from 'mediasoup-client/lib/Transport'
 import { Producer } from 'mediasoup-client/lib/Producer'
 import { Consumer, ConsumerOptions } from 'mediasoup-client/lib/types'
@@ -11,7 +11,7 @@ class AppMediasoup {
   roomId: number | null = null
   sendTransport: Transport | null = null
   recvTransport: Transport | null = null
-  producer: Producer | null = null
+  producers: Producer[] = []
   consumers: Consumer[] = []
 
   connectTranport(transport: Transport, direction: TransportDirection) {
@@ -65,7 +65,8 @@ class AppMediasoup {
     })
   }
 
-  async loadDevice(rtpCapabilities: RtpCapabilities) {
+  async loadDevice(roomId: number, rtpCapabilities: RtpCapabilities) {
+    this.roomId = roomId
     this.device = new Device()
     await this.device.load({
       routerRtpCapabilities: rtpCapabilities
@@ -78,7 +79,7 @@ class AppMediasoup {
       track
     })
     if(producer) {
-      this.producer = producer
+      this.producers.push(producer)
     } else {
       console.log("error: failed to produce")
     }

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useMe, useRoomEvents } from "@/hooks/queries"
-import { appSocket } from "@/lib/AppSocket"
+import { appSocket } from "@/lib/socket/AppSocket"
 import { useRooms } from "@/hooks/queries"
 import { Participants, RoomWidget } from "@/pages/room/components"
 import { ProfileUser } from "@/types"

@@ -14,12 +14,6 @@ export async function isSocketAuthenticated(socket: TSocket, next: NextFunction)
   const cookies = cookie.parse(cookieHeader)
   const payload = await validateTokens(cookies)
   socket.data.auth = payload
-  socket.data.mediasoup = {
-    sendTransport: null,
-    recvTransport: null,
-    producer: null,
-    consumers: [],
-  }
   if(!payload) {
     return next(unauthorizedErr)
   }

@@ -10,7 +10,7 @@ import { ProfileUser, SocketRoom } from "@/types";
 import { toast } from "sonner";
 import { useUpdateRoomMetadata } from "@/hooks/mutations";
 import { useMe } from "@/hooks/queries";
-import { appSocket } from "@/lib/AppSocket";
+import { appSocket } from "@/lib/socket/AppSocket";
 import { InPM, SetState } from "..";
 
 type Props = {

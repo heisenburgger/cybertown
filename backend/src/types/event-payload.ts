@@ -1,9 +1,11 @@
 import { ProfileUser } from "@/types/entity"
+import { RtpCapabilities } from "mediasoup/node/lib/types"
 
 export type RoomJoinedPayload = {
   roomId: number
   user: ProfileUser
   joinedAt: number
+  rtpCapabilities: RtpCapabilities
 }
 
 export type RoomLeavePayload = {
