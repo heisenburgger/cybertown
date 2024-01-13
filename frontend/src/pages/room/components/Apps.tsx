@@ -39,7 +39,7 @@ export function Apps(props: Props) {
           setIsScreenSharing(false)
         }
       }
-      appMediasoup.produce(track)
+      appMediasoup.produce(track, 'screenshare')
       setIsScreenSharing(true)
     } catch(err) {
       console.log("error: shareScreen:", err)
@@ -47,8 +47,6 @@ export function Apps(props: Props) {
         toast.error(err.message)
       }
     }
-    // set to video element
-    // publish track
   }
 
   function stopScreenshare() {

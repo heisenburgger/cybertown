@@ -1,22 +1,16 @@
-import mediasoup from 'mediasoup';
+import * as mediasoup from 'mediasoup';
 import {
 	Router,
 	Worker,
-	WebRtcTransport,
 	DtlsParameters,
 	RtpParameters,
 	MediaKind,
-	Producer,
-	Consumer,
 	RtpCapabilities,
 } from 'mediasoup/node/lib/types';
 import os from 'os';
-import { Peer, TNull } from '@/mediasoup/Peer';
+import { Peer } from '@/mediasoup/Peer';
 import { config } from '@/mediasoup/config';
-
-type TransportDirection = 'send' | 'recv';
-
-type RoomMediaKind = 'screenshare' | 'webcam' | 'microphone';
+import { RoomMediaKind, TransportDirection } from '@/types/mediasoup';
 
 export class AppMediasoup {
 	workerIdx = 0;
@@ -44,6 +38,7 @@ export class AppMediasoup {
 			workers.push(worker);
 			this.routers[worker.pid] = router;
 		}
+    this.workers = workers
 	}
 
 	// assigns a worker for a room
@@ -82,6 +77,34 @@ export class AppMediasoup {
 		room.state[userId] = new Peer();
 	}
 
+	updatePeer(roomId: string, userId: number, payload: Partial<Omit<Peer, 'close'>>) {
+		const room = this.rooms[roomId];
+		if (!room) {
+			throw new Error('missing room');
+		}
+		const peer = room.state[userId];
+		if (!peer) {
+			throw new Error('missing peer');
+		}
+    for(let key in payload) {
+      // @ts-ignore
+      this.rooms[roomId].state[userId][key] = payload[key]
+    }
+	}
+
+
+	getPeer(roomId: string, userId: number) {
+		const room = this.rooms[roomId];
+		if (!room) {
+			throw new Error('missing room');
+		}
+		const peer = room.state[userId];
+		if (!peer) {
+			throw new Error('missing peer');
+		}
+    return peer
+	}
+
 	deletePeer(roomId: string, userId: number) {
 		const room = this.rooms[roomId];
 		if (!room) {
@@ -101,12 +124,11 @@ export class AppMediasoup {
 			roomId: string;
 			userId: number;
 		},
-		cb: (err: TNull<Error>, transport: TNull<WebRtcTransport>) => void,
 	) {
 		const { roomId, userId, direction } = data;
 		const router = this.getRouter(roomId);
 		if (!router) {
-			cb(new Error('missing router'), null);
+      console.log("error: AppMediasoup: createTransport: missing router")
 			return;
 		}
 		const transport = await router.createWebRtcTransport({
@@ -120,7 +142,7 @@ export class AppMediasoup {
 				direction,
 			},
 		});
-		cb(null, transport);
+    return transport
 	}
 
 	async connectTransport(data: {
@@ -137,7 +159,7 @@ export class AppMediasoup {
 		const transport =
 			direction === 'send' ? peer.sendTransport : peer.recvTransport;
 		if (!transport) {
-			console.error('missing transport in peer');
+      console.log("error: AppMediasoup: connectTransport: missing transport in peer")
 			return;
 		}
 		transport.connect({ dtlsParameters });
@@ -151,21 +173,20 @@ export class AppMediasoup {
 			kind: MediaKind;
 			roomKind: RoomMediaKind;
 		},
-		cb: (err: TNull<Error>, producer: TNull<Producer>) => void,
 	) {
 		const { rtpParameters, kind, roomId, userId, roomKind } = data;
 		const room = this.rooms[roomId];
 		if (!room) {
-			cb(new Error('missing room'), null);
+      console.log("error: AppMediasoup: produce: missing room")
 			return;
 		}
 		const peer = room.state[userId];
 		if (!peer) {
-			cb(new Error('missing peer'), null);
+      console.log("error: AppMediasoup: produce: missing peer")
 			return;
 		}
 		if (!peer.sendTransport) {
-			cb(new Error('missing send transport'), null);
+      console.log("error: AppMediasoup: produce: missing send transport")
 			return;
 		}
 		const producer = await peer.sendTransport.produce({
@@ -177,7 +198,7 @@ export class AppMediasoup {
 				roomKind,
 			},
 		});
-		cb(null, producer);
+    return producer
 	}
 
 	async consume(
@@ -188,22 +209,21 @@ export class AppMediasoup {
 			rtpCapabilities: RtpCapabilities;
 			roomKind: RoomMediaKind;
 		},
-		cb: (err: TNull<Error>, consumer: TNull<Consumer>) => void,
 	) {
 		const { roomId, userId, producerId, rtpCapabilities, roomKind } = data;
 		const room = this.rooms[roomId];
 		if (!room) {
-			cb(new Error('missing room'), null);
+      console.log("error: AppMediasoup: consume: missing room")
 			return;
 		}
 		const peer = room.state[userId];
 		if (!peer) {
-			cb(new Error('missing peer'), null);
+      console.log("error: AppMediasoup: consume: missing peer")
 			return;
 		}
 		const router = this.getRouter(roomId);
 		if (!router) {
-			cb(new Error('missing router'), null);
+      console.log("error: AppMediasoup: consume: missing router")
 			return;
 		}
 		const isConsumable = router.canConsume({
@@ -211,11 +231,11 @@ export class AppMediasoup {
 			rtpCapabilities,
 		});
 		if (!isConsumable) {
-			cb(new Error('cannot consume'), null);
+      console.log("error: AppMediasoup: consume: failed to consume")
 			return;
 		}
 		if (!peer.recvTransport) {
-			cb(new Error('unable to receive transport'), null);
+      console.log("error: AppMediasoup: consume: recv transport missing")
 			return;
 		}
 		const consumer = await peer.recvTransport.consume({
@@ -228,7 +248,7 @@ export class AppMediasoup {
 				roomKind,
 			},
 		});
-    cb(null, consumer)
+    return consumer
 	}
 
 	consumeResume(data:{

@@ -29,7 +29,7 @@ export function Participants(props: Props) {
   const { participants, room, inPM, setInPM, textareaRef, setIsConsuming } = props
 
   function consume(participantId: number) {
-    appMediasoup.consume(participantId, (track) => {
+    appMediasoup.consume(participantId, 'screenshare', (track) => {
       const videoEl = document.getElementById("screenShareStream")
       if(!videoEl) {
         throw new Error("Missing video element")

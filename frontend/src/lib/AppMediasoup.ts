@@ -1,4 +1,4 @@
-import { TransportDirection, TransportOptions } from '@/types'
+import { RoomMediaKind, TransportDirection, TransportOptions } from '@/types'
 import { Device } from 'mediasoup-client'
 import { RtpCapabilities } from 'mediasoup-client/lib/RtpParameters'
 import { appSocket } from '@/lib/socket/AppSocket'
@@ -48,10 +48,12 @@ class AppMediasoup {
 
   listenForProduce() {
     this.sendTransport?.on("produce", (data, callback, errback) => {
+      console.log("produced data:", data)
       appSocket.socket?.emit("room:mediasoup:produce", {
         roomId: this.roomId!,
         kind: data.kind,
         rtpParameters: data.rtpParameters,
+        roomKind: data.appData.roomKind as RoomMediaKind
       }, (producerId) => {
         try {
           callback({ id: producerId })
@@ -74,9 +76,12 @@ class AppMediasoup {
     appSocket.createTransports(this.roomId!)
   }
 
-  async produce(track: MediaStreamTrack) {
+  async produce(track: MediaStreamTrack, roomKind: RoomMediaKind) {
     const producer = await this.sendTransport?.produce({
-      track
+      track,
+      appData: {
+        roomKind
+      }
     })
     if(producer) {
       this.producers.push(producer)
@@ -85,11 +90,12 @@ class AppMediasoup {
     }
   }
 
-  async consume(participantId: number, cb: (track: MediaStreamTrack) => void) {
+  async consume(participantId: number, roomKind: RoomMediaKind, cb: (track: MediaStreamTrack) => void) {
     appSocket.socket?.emit('room:mediasoup:consume', {
       roomId: this.roomId!,
       rtpCapabilities: this.device?.rtpCapabilities!,
-      participantId 
+      participantId,
+      roomKind,
     }, async (consumerOptions: ConsumerOptions) => {
       const consumer = await this.recvTransport?.consume(consumerOptions)
       if(!consumer) {
@@ -101,6 +107,7 @@ class AppMediasoup {
       appSocket.socket?.emit('room:mediasoup:consume:resume', {
         roomId: this.roomId!,
         consumerId: consumer.id,
+        roomKind
       })
     })
   }

@@ -29,6 +29,7 @@ export const roomHandler = {
 	},
 
 	participantJoined(data: RoomJoinedPayload) {
+    console.log("participantJoined:", data)
 		queryClient.setQueriesData(
 			{
 				queryKey: ['room:events', data.roomId],

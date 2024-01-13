@@ -24,17 +24,20 @@ export type ProducePayload = {
   kind: MediaKind
   rtpParameters: RtpParameters
   roomId: number
+  roomKind: RoomMediaKind
 }
 
 export type ConsumePayload = {
   roomId: number
   rtpCapabilities: RtpCapabilities
   participantId: number,
+  roomKind: RoomMediaKind
 }
 
 export type ConsumeResumePayload = {
   roomId: number
   consumerId: string
+  roomKind: RoomMediaKind
 }
 
 export type TransportOptions = {
@@ -50,3 +53,5 @@ export type ConsumerOptions = {
   rtpParameters: RtpParameters
   producerId: string
 }
+
+export type RoomMediaKind = 'screenshare' | 'webcam' | 'microphone';
