@@ -48,4 +48,8 @@
   .dropdown-content {
     width: var(--radix-dropdown-menu-trigger-width);
   }
+  .chat {
+    max-height: calc(100vh - 136px);
+    overflow: auto;
+  }
 }

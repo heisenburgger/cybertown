@@ -1,17 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { SetState } from "..";
 import { toast } from "sonner";
 import { useRef } from "react";
 import { appMediasoup } from "@/lib/AppMediasoup";
+import { appSocket } from "@/lib/socket/AppSocket";
+import { useRoomStore } from "@/stores";
+import { useMe } from "@/hooks/queries";
 
 type Props = {
-  isScreenSharing: boolean
-  setIsScreenSharing: SetState<boolean>
+  roomId: number
 }
 
 export function Apps(props: Props) {
-  const { isScreenSharing, setIsScreenSharing } = props
+  const { data: user } = useMe()
+  const { roomId } = props
   const trackRef = useRef<MediaStreamTrack | null>(null)
+  const roomState = useRoomStore(state => state.participants[user?.id as number])
+  const isScreensharing = roomState?.producing?.screenshare
+  const updateParticipantState = useRoomStore((state) => state.updateParticipantState)
 
   async function getTrack() {
     try {
@@ -35,12 +40,16 @@ export function Apps(props: Props) {
       if(videoEl instanceof HTMLVideoElement) {
         trackRef.current = track
         videoEl.srcObject = new MediaStream([track])
-        track.onended = function() {
-          setIsScreenSharing(false)
-        }
+        track.onended = stopScreenshare
       }
       appMediasoup.produce(track, 'screenshare')
-      setIsScreenSharing(true)
+      updateParticipantState(user?.id as number, {
+        ...roomState,
+        producing: {
+         ...roomState?.producing ?? {},
+         screenshare: true
+        }
+      })
     } catch(err) {
       console.log("error: shareScreen:", err)
       if(err instanceof Error) {
@@ -52,14 +61,25 @@ export function Apps(props: Props) {
   function stopScreenshare() {
     if(trackRef.current) {
       trackRef.current.stop()
-      setIsScreenSharing(false)
+      updateParticipantState(user?.id as number, {
+        ...roomState,
+        producing: {
+         ...roomState?.producing ?? {},
+         screenshare: false
+        }
+      })
+      appSocket.stopProducing({
+        roomId,
+        roomKind: 'screenshare'
+      })
+      appMediasoup.stopProducing('screenshare')
     }
   }
 
   return (
     <div className="h-full flex items-center justify-center">
-      {!isScreenSharing && <Button variant="outline" onClick={shareScreen}>Share Screen</Button>}
-      {isScreenSharing && <Button variant="destructive" onClick={stopScreenshare}>Stop Screen Sharing</Button>}
+      {!isScreensharing && <Button variant="outline" onClick={shareScreen}>Share Screen</Button>}
+      {isScreensharing && <Button variant="destructive" onClick={stopScreenshare}>Stop Screen Sharing</Button>}
     </div>
   )
 }

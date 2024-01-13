@@ -11,32 +11,35 @@ import {
 import { ParticipantMenu } from "@/pages/room/components"
 import { useMe } from "@/hooks/queries"
 import { ShieldIcon } from "lucide-react"
-import { InPM, SetState } from ".."
 import { appMediasoup } from "@/lib/AppMediasoup"
+import { useRoomStore } from "@/stores"
 
 type Props = {
   room: SocketRoom
   participants: ProfileUser[]
-  textareaRef: React.RefObject<HTMLTextAreaElement>
-  inPM: InPM
-  setInPM: SetState<InPM>
-  isConsuming: boolean
-  setIsConsuming: SetState<boolean>
 }
 
 export function Participants(props: Props) {
   const { data: user } = useMe()
-  const { participants, room, inPM, setInPM, textareaRef, setIsConsuming } = props
+  const { participants, room } = props
+  const roomState = useRoomStore(state => state.participants[user?.id as number])
+  const updateParticipantState = useRoomStore(state => state.updateParticipantState)
 
   function consume(participantId: number) {
-    appMediasoup.consume(participantId, 'screenshare', (track) => {
+    appMediasoup.consume(participantId, 'screenshare', (track, data) => {
       const videoEl = document.getElementById("screenShareStream")
       if(!videoEl) {
         throw new Error("Missing video element")
       }
       if(videoEl instanceof HTMLVideoElement) {
         videoEl.srcObject = new MediaStream([track])
-        setIsConsuming(true)
+        updateParticipantState(user?.id as number, {
+          ...roomState,
+          consuming: {
+            roomKind: 'screenshare',
+            ...data
+          }
+        })
       }
     })
   }
@@ -78,7 +81,7 @@ export function Participants(props: Props) {
             )}
             <Overlay participant={participant} consume={consume} />
             {participant.id !== user?.id && (
-              <ParticipantMenu participant={participant} room={room} inPM={inPM} setInPM={setInPM} textareaRef={textareaRef} />
+              <ParticipantMenu participant={participant} room={room} />
             )}
           </div>
         )

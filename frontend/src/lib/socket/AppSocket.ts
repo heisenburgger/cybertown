@@ -1,6 +1,6 @@
 import { config } from '@/config'
 import io from 'socket.io-client'
-import { ConnectTransportPayload, RoomChatClearPayload, RoomMessageReq, RoomPrivateMessageReq, TSocket } from '@/types'
+import { ConnectTransportPayload, ProduceStopPayload, RoomChatClearPayload, RoomMessageReq, RoomPrivateMessageReq, TSocket } from '@/types'
 import { invalidateRooms, roomHandler } from './room'
 import { mediasoupHandler } from './mediasoup'
 
@@ -32,6 +32,7 @@ class AppSocket {
     this.socket.on('room:chat:cleared', roomHandler.clearChat)
 
     this.socket.on('room:mediasoup:transportOptions', mediasoupHandler.transportOptions)
+    this.socket.on('room:mediasoup:consume:stop', mediasoupHandler.stopConsuming)
   }
   
   joinRoom = (roomId: number) => {
@@ -56,6 +57,10 @@ class AppSocket {
 
   connectTransport = (data: ConnectTransportPayload) => {
     this.socket?.emit("room:mediasoup:transport:connect", data)
+  }
+
+  stopProducing = (data: ProduceStopPayload) => {
+    this.socket?.emit("room:mediasoup:produce:stop", data)
   }
 }
 

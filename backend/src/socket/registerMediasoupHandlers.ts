@@ -1,12 +1,10 @@
 import { prefixedRoomId } from "@/lib/utils";
 import { TServer, TSocket } from "@/types/socket";
 import { appMediasoup } from "..";
-import { TNull } from "@/mediasoup/Peer";
 import { getTransportOptions } from "@/mediasoup/util";
-import { ConnectTransportPayload, ConsumePayload, ConsumeResumePayload, ConsumerOptions, ProducePayload } from "@/types/mediasoup";
-import { Producer } from "mediasoup/node/lib/Producer";
+import { ConnectTransportPayload, ConsumePayload, ConsumeResumePayload, ConsumerOptions, ProducePayload, ProduceStopPayload, } from "@/types/mediasoup";
 
-export function registerMediasoupHandler(_io: TServer, socket: TSocket) {
+export function registerMediasoupHandler(io: TServer, socket: TSocket) {
   async function createTransport(roomId: number) {
     const socketRoomId = prefixedRoomId(roomId)
     const isInRoom = socket.rooms.has(socketRoomId)
@@ -89,6 +87,51 @@ export function registerMediasoupHandler(_io: TServer, socket: TSocket) {
     cb(producer.id)
   }
 
+  async function stopProducing(data: ProduceStopPayload) {
+    console.log("produceStop:", data)
+    const socketRoomId = prefixedRoomId(data.roomId)
+    const isInRoom = socket.rooms.has(socketRoomId)
+    if(!isInRoom) {
+      console.log("error: consume: not in room")
+      return
+    }
+    const userId = socket.data.auth?.userId!
+    const peer = appMediasoup.getPeer(socketRoomId, userId)
+    if(!peer) {
+      console.log("error: produceStop: no peer")
+      return
+    }
+    const peerProducer = peer.producers.find(producer => producer.appData.roomKind === data.roomKind)
+    if(!peerProducer) {
+      console.log("error: produceStop: producer missing")
+      return
+    }
+
+    // TODO: you can make it way better, but for now, keep going
+    const sockets = await io.in(socketRoomId).fetchSockets()
+    peerProducer.close()
+    peer.consumers.forEach(consumer => {
+      if(consumer.appData.roomKind === data.roomKind) {
+        const socket = sockets.find(socket =>socket.data.auth?.userId === consumer.appData.userId)
+        if(!socket) {
+          console.log("error: failed to find socket to stop consume")
+          return
+        }
+        socket.emit('room:mediasoup:consume:stop', {
+          consumerId: consumer.id,
+          producerId: peerProducer.id,
+          roomKind: data.roomKind,
+        })
+        consumer.close()
+      }
+    })
+
+    appMediasoup.updatePeer(socketRoomId, userId, {
+      producers: peer.producers.filter(producer => producer.id !== peerProducer.id),
+      consumers: peer.consumers.filter(consumer => consumer.appData.roomKind !== data.roomKind)
+    })
+  }
+
   async function consume(data: ConsumePayload, cb: (options: ConsumerOptions) => void) {
     const socketRoomId = prefixedRoomId(data.roomId)
     const isInRoom = socket.rooms.has(socketRoomId)
@@ -120,9 +163,8 @@ export function registerMediasoupHandler(_io: TServer, socket: TSocket) {
     if(!consumer) {
       return
     }
-    const peer = appMediasoup.getPeer(socketRoomId, userId)
-    appMediasoup.updatePeer(socketRoomId, userId, {
-      consumers: [...peer.consumers, consumer]
+    appMediasoup.updatePeer(socketRoomId, data.participantId, {
+      consumers: [...producerPeer.consumers, consumer]
     })
     cb({
       producerId: producer.id,
@@ -133,25 +175,30 @@ export function registerMediasoupHandler(_io: TServer, socket: TSocket) {
     console.log("created consumer")
   }
 
-  async function consumeResume(data: ConsumeResumePayload) {
+  async function resumeConsumer(data: ConsumeResumePayload) {
     const socketRoomId = prefixedRoomId(data.roomId)
     const isInRoom = socket.rooms.has(socketRoomId)
     if(!isInRoom) {
       console.log("error: consume: not in room")
       return
     }
-    const userId = socket.data.auth?.userId!
-    appMediasoup.consumeResume({
-      roomId: socketRoomId,
-      userId,
-      consumerId: data.consumerId
-    })
+    const peer = appMediasoup.getPeer(socketRoomId, data.participantId)
+    if(!peer) {
+      return
+    }
+    const consumer = peer.consumers.find(consumer => consumer.id === data.consumerId)
+    if(!consumer) {
+      console.log("error: missing consumer")
+      return
+    }
+    consumer.resume()
     console.log("info: consumer resumed")
   }
 
   socket.on('room:mediasoup:transport:create', createTransport)
   socket.on('room:mediasoup:transport:connect', connectTransport)
   socket.on('room:mediasoup:produce', produce)
+  socket.on('room:mediasoup:produce:stop', stopProducing)
   socket.on('room:mediasoup:consume', consume)
-  socket.on('room:mediasoup:consume:resume', consumeResume)
+  socket.on('room:mediasoup:consume:resume', resumeConsumer)
 }

@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io"
 import { ProfileUser, Room } from "./entity"
 import { RoomChatClearPayload, RoomChatClearedPayload, RoomCoOwnershipPayload, RoomJoinedPayload, RoomLeavePayload, RoomMessageReq, RoomPrivateMessageReq } from "./event-payload"
 import { PrivateRoomMessage, RoomMessage } from "./entity-message"
-import { ConnectTransportPayload, TransportDirection, TransportOptions } from "./mediasoup"
+import { ConnectTransportPayload, ConsumePayload, ConsumeResumePayload, ConsumeStopPayload, ConsumerOptions, ProducePayload, ProduceStopPayload as ProduceStopPayload, TransportDirection, TransportOptions } from "./mediasoup"
 
 export interface ServerToClientEvents {
   'room:participant:joined': (data: RoomJoinedPayload) => void
@@ -14,9 +14,10 @@ export interface ServerToClientEvents {
   'room:chat:cleared': (data: RoomChatClearedPayload) => void
 
   // mediasoup
-	'room:mediasoup:transportOptions': (
-		tpOptions: Record<TransportDirection, TransportOptions>,
-	) => void;
+  'room:mediasoup:transportOptions': (
+    tpOptions: Record<TransportDirection, TransportOptions>,
+  ) => void;
+  'room:mediasoup:consume:stop': (data: ConsumeStopPayload) => void;
 }
 
 export interface ClientToServerEvents {
@@ -27,7 +28,19 @@ export interface ClientToServerEvents {
 
   // mediasoup
   'room:mediasoup:transport:create': (roomId: number) => void
-	'room:mediasoup:transport:connect': (data: ConnectTransportPayload) => void;
+  'room:mediasoup:transport:connect': (data: ConnectTransportPayload) => void;
+  'room:mediasoup:produce': (
+    data: ProducePayload,
+    cb: (producerId: string) => void,
+  ) => void;
+  'room:mediasoup:produce:stop': (
+    data: ProduceStopPayload,
+  ) => void;
+  'room:mediasoup:consume': (
+    data: ConsumePayload,
+    cb: (consumerOptions: ConsumerOptions) => void,
+  ) => void;
+  'room:mediasoup:consume:resume': (data: ConsumeResumePayload) => void;
 }
 
 

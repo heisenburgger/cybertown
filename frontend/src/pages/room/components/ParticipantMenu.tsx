@@ -11,19 +11,16 @@ import { toast } from "sonner";
 import { useUpdateRoomMetadata } from "@/hooks/mutations";
 import { useMe } from "@/hooks/queries";
 import { appSocket } from "@/lib/socket/AppSocket";
-import { InPM, SetState } from "..";
+import { useRoomStore } from "@/stores";
 
 type Props = {
   room: SocketRoom
   participant: ProfileUser
-  textareaRef: React.RefObject<HTMLTextAreaElement>
-  inPM: InPM
-  setInPM: SetState<InPM>
 }
 
 export function ParticipantMenu(props: Props) {
   const { data: user } = useMe()
-  const { room, participant, textareaRef, setInPM } = props
+  const { room, participant } = props
   const { mutateAsync: updateRoomMetadataMutate } = useUpdateRoomMetadata()
 
   const isPartcipantCoOwner = room.metadata.coOwners?.includes(participant.id)
@@ -33,6 +30,8 @@ export function ParticipantMenu(props: Props) {
   const isCoOwner = user?.id === room.metadata.coOwners?.includes(user?.id as number)
 
   const hasPermissions = (isOwner || isCoOwner) && !isParticipantOwner
+
+  const setInPM = useRoomStore(state => state.setInPM)
 
   async function setCoOwnership(unset = false) {
     try {
@@ -57,9 +56,10 @@ export function ParticipantMenu(props: Props) {
   }
 
   function putInPM() {
-    if(textareaRef.current) {
-      textareaRef.current.focus()
-      setInPM({ participant })
+    const textareaEl = document.getElementById("sendMessage")
+    if(textareaEl instanceof HTMLTextAreaElement) {
+      textareaEl.focus()
+      setInPM(participant)
     }
   }
 

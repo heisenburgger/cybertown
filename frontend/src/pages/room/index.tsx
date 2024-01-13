@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { useMe, useRoomEvents } from "@/hooks/queries"
 import { appSocket } from "@/lib/socket/AppSocket"
@@ -6,6 +6,7 @@ import { useRooms } from "@/hooks/queries"
 import { Participants, RoomWidget } from "@/pages/room/components"
 import { ProfileUser } from "@/types"
 import { cn } from "@/lib/utils"
+import { useRoomStore } from "@/stores"
 
 export type InPM = {
   participant: ProfileUser
@@ -22,13 +23,8 @@ export function Room() {
   const { data: events } = useRoomEvents(roomId)
   const room = rooms?.find(room => room.id === roomId)
   const participants = room?.participants ?? []
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const [isScreenSharing, setIsScreenSharing] = useState(false)
-  const [isConsuming, setIsConsuming] = useState(false)
-  const isVideoPlaying = isScreenSharing || isConsuming
-
-  // determines whether the user in involved in a private message
-  const [inPM, setInPM] = useState<InPM>(null)
+  const roomState = useRoomStore(state => state.participants[user?.id as number])
+  const isVideoPlaying = roomState?.producing?.screenshare || roomState?.producing?.webcam || (typeof roomState?.consuming !== "boolean" && (roomState?.consuming?.roomKind === 'webcam' || roomState?.consuming?.roomKind === 'screenshare'))
 
   useEffect(() => {
     if (!user || isNaN(roomId)) {
@@ -58,9 +54,9 @@ export function Room() {
             {!isVideoPlaying && <p>{room.metadata.welcomeMessage?.replace('[username]', user.username)}</p>}
           </div>
         </div>
-        <Participants participants={participants} room={room} textareaRef={textareaRef} inPM={inPM} setInPM={setInPM} isConsuming={isConsuming} setIsConsuming={setIsConsuming} />
+        <Participants participants={participants} room={room} />
       </div>
-      <RoomWidget room={room} events={events ?? []} textareaRef={textareaRef} inPM={inPM} setInPM={setInPM} isScreenSharing={isScreenSharing} setIsScreenSharing={setIsScreenSharing} />
+      <RoomWidget room={room} events={events ?? []} />
     </div>
   )
 }

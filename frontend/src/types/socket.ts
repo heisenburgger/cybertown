@@ -16,6 +16,8 @@ import {
 	RoomPrivateMessageReq,
 	TransportDirection,
 	TransportOptions,
+  ProduceStopPayload,
+  ConsumeStopPayload,
 } from '@/types';
 import { ConsumerOptions } from 'mediasoup-client/lib/Consumer';
 
@@ -32,6 +34,7 @@ export interface ServerToClientEvents {
 	'room:mediasoup:transportOptions': (
 		tpOptions: Record<TransportDirection, TransportOptions>,
 	) => void;
+  'room:mediasoup:consume:stop': (data: ConsumeStopPayload) => void;
 }
 
 export interface ClientToServerEvents {
@@ -47,6 +50,9 @@ export interface ClientToServerEvents {
 		data: ProducePayload,
 		cb: (producerId: string) => void,
 	) => void;
+  'room:mediasoup:produce:stop': (
+    data: ProduceStopPayload,
+  ) => void;
 	'room:mediasoup:consume': (
 		data: ConsumePayload,
 		cb: (consumerOptions: ConsumerOptions) => void,

@@ -90,7 +90,30 @@ class AppMediasoup {
     }
   }
 
-  async consume(participantId: number, roomKind: RoomMediaKind, cb: (track: MediaStreamTrack) => void) {
+  async stopProducing(roomKind: RoomMediaKind) {
+    const producer = this.producers.find(producer => producer.appData.roomKind = roomKind)
+    if(!producer) {
+      console.log("error: failed to stop produce: ", roomKind)
+      return
+    }
+    producer.close()
+    this.producers = this.producers.filter(producer => producer.appData.roomKind = roomKind)
+  }
+
+  async stopConsuming(roomKind: RoomMediaKind) {
+    const consumer = this.consumers.find(consumer => consumer.appData.roomKind = roomKind)
+    if(!consumer) {
+      console.log("error: failed to stop consume: ", roomKind)
+      return
+    }
+    consumer.close()
+    this.consumers = this.consumers.filter(consumer => consumer.appData.roomKind = roomKind)
+  }
+
+  async consume(participantId: number, roomKind: RoomMediaKind, cb: (track: MediaStreamTrack, data: {
+    consumerId: string
+    producerId: string
+  }) => void) {
     appSocket.socket?.emit('room:mediasoup:consume', {
       roomId: this.roomId!,
       rtpCapabilities: this.device?.rtpCapabilities!,
@@ -103,11 +126,15 @@ class AppMediasoup {
         return
       }
       this.consumers.push(consumer)
-      cb(consumer.track)
+      cb(consumer.track, {
+        consumerId: consumer.id,
+        producerId: consumer.producerId,
+      })
       appSocket.socket?.emit('room:mediasoup:consume:resume', {
         roomId: this.roomId!,
         consumerId: consumer.id,
-        roomKind
+        roomKind,
+        participantId
       })
     })
   }

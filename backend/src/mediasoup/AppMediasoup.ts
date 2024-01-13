@@ -92,7 +92,6 @@ export class AppMediasoup {
     }
 	}
 
-
 	getPeer(roomId: string, userId: number) {
 		const room = this.rooms[roomId];
 		if (!room) {
@@ -250,23 +249,4 @@ export class AppMediasoup {
 		});
     return consumer
 	}
-
-	consumeResume(data:{
-    roomId: string
-    userId: number
-    consumerId: string
-  }) {
-    const { roomId, userId, consumerId } = data
-    const peer = this.rooms[roomId].state[userId]
-    if(!peer) {
-      console.log("missing peer")
-      return
-    }
-    const consumer = peer.consumers.find(consumer => consumer.id === consumerId)
-    if(!consumer) {
-      console.log("missing consumer")
-      return
-    }
-    consumer.resume()
-  }
 }

@@ -31,6 +31,7 @@ export type ConsumeResumePayload = {
   roomId: number
   consumerId: string
   roomKind: RoomMediaKind
+  participantId: number
 }
 
 export type TransportOptions = {
@@ -41,3 +42,14 @@ export type TransportOptions = {
 }
 
 export type RoomMediaKind = 'screenshare' | 'webcam' | 'microphone';
+
+export type ProduceStopPayload = {
+  roomId: number
+  roomKind: RoomMediaKind
+}
+
+export type ConsumeStopPayload = {
+  consumerId: string
+  producerId: string
+  roomKind: RoomMediaKind
+}
