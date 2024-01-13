@@ -115,6 +115,7 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
           user: socket.data.user,
           leftAt: Date.now(),
         })
+        appMediasoup.deletePeer(room, socket.data.user.id)
       }
     })
   }

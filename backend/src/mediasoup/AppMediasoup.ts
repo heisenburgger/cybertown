@@ -11,6 +11,7 @@ import os from 'os';
 import { Peer } from '@/mediasoup/Peer';
 import { config } from '@/mediasoup/config';
 import { RoomMediaKind, TransportDirection } from '@/types/mediasoup';
+import { TSocket } from '@/types/socket';
 
 export class AppMediasoup {
 	workerIdx = 0;
@@ -113,7 +114,7 @@ export class AppMediasoup {
 		if (!peer) {
 			throw new Error('missing peer');
 		}
-		peer.close();
+		peer.close(roomId);
 		delete room.state[userId];
 	}
 
@@ -245,6 +246,7 @@ export class AppMediasoup {
 				roomId,
 				userId,
 				roomKind,
+        producerId,
 			},
 		});
     return consumer
