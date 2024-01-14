@@ -1,5 +1,5 @@
 import { WebRtcTransport, Producer, Consumer } from "mediasoup/node/lib/types"
-import { io } from ".."
+import { appMediasoup, io } from ".."
 import { TSocket } from "@/types/socket"
 import { RoomMediaKind } from "@/types/mediasoup"
 
@@ -36,5 +36,6 @@ export class Peer {
       })
       consumer.close()
     })
+    io.in(roomId).emit('room:mediasoup:state', appMediasoup.getState(roomId))
   }
 }

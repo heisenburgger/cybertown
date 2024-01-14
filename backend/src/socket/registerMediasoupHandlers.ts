@@ -85,6 +85,7 @@ export function registerMediasoupHandler(io: TServer, socket: TSocket) {
     })
     console.log("mediasoup handler: created producer")
     cb(producer.id)
+    io.in(socketRoomId).emit('room:mediasoup:state', appMediasoup.getState(socketRoomId))
   }
 
   async function stopProducing(data: ProduceStopPayload) {
@@ -130,6 +131,7 @@ export function registerMediasoupHandler(io: TServer, socket: TSocket) {
       producers: peer.producers.filter(producer => producer.id !== peerProducer.id),
       consumers: peer.consumers.filter(consumer => consumer.appData.roomKind !== data.roomKind)
     })
+    io.in(socketRoomId).emit('room:mediasoup:state', appMediasoup.getState(socketRoomId))
   }
 
   async function consume(data: ConsumePayload, cb: (options: ConsumerOptions) => void) {
@@ -193,6 +195,7 @@ export function registerMediasoupHandler(io: TServer, socket: TSocket) {
     }
     consumer.resume()
     console.log("info: consumer resumed")
+    io.in(socketRoomId).emit('room:mediasoup:state', appMediasoup.getState(socketRoomId))
   }
 
   socket.on('room:mediasoup:transport:create', createTransport)

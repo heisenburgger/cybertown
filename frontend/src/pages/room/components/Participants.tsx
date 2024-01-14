@@ -12,7 +12,6 @@ import { ParticipantMenu } from "@/pages/room/components"
 import { useMe } from "@/hooks/queries"
 import { ShieldIcon } from "lucide-react"
 import { appMediasoup } from "@/lib/AppMediasoup"
-import { useRoomStore } from "@/stores"
 
 type Props = {
   room: SocketRoom
@@ -22,24 +21,15 @@ type Props = {
 export function Participants(props: Props) {
   const { data: user } = useMe()
   const { participants, room } = props
-  const roomState = useRoomStore(state => state.participants[user?.id as number])
-  const updateParticipantState = useRoomStore(state => state.updateParticipantState)
 
   function consume(participantId: number) {
-    appMediasoup.consume(participantId, 'screenshare', (track, data) => {
+    appMediasoup.consume(participantId, 'screenshare', (track) => {
       const videoEl = document.getElementById("screenShareStream")
       if(!videoEl) {
         throw new Error("Missing video element")
       }
       if(videoEl instanceof HTMLVideoElement) {
         videoEl.srcObject = new MediaStream([track])
-        updateParticipantState(user?.id as number, {
-          ...roomState,
-          consuming: {
-            roomKind: 'screenshare',
-            ...data
-          }
-        })
       }
     })
   }

@@ -24,7 +24,7 @@ export function Room() {
   const room = rooms?.find(room => room.id === roomId)
   const participants = room?.participants ?? []
   const roomState = useRoomStore(state => state.participants[user?.id as number])
-  const isVideoPlaying = roomState?.producing?.screenshare || roomState?.producing?.webcam || (typeof roomState?.consuming !== "boolean" && (roomState?.consuming?.roomKind === 'webcam' || roomState?.consuming?.roomKind === 'screenshare'))
+  const isVideoPlaying = roomState?.producing?.screenshare || roomState?.producing?.webcam || roomState?.consuming.findIndex(consumer => consumer.roomKind === 'screenshare') !== -1
 
   useEffect(() => {
     if (!user || isNaN(roomId)) {

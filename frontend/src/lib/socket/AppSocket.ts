@@ -33,6 +33,7 @@ class AppSocket {
 
     this.socket.on('room:mediasoup:transportOptions', mediasoupHandler.transportOptions)
     this.socket.on('room:mediasoup:consume:stop', mediasoupHandler.stopConsuming)
+    this.socket.on('room:mediasoup:state', mediasoupHandler.mediasoupState)
   }
   
   joinRoom = (roomId: number) => {

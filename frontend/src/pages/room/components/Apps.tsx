@@ -16,7 +16,6 @@ export function Apps(props: Props) {
   const trackRef = useRef<MediaStreamTrack | null>(null)
   const roomState = useRoomStore(state => state.participants[user?.id as number])
   const isScreensharing = roomState?.producing?.screenshare
-  const updateParticipantState = useRoomStore((state) => state.updateParticipantState)
 
   async function getTrack() {
     try {
@@ -43,13 +42,6 @@ export function Apps(props: Props) {
         track.onended = stopScreenshare
       }
       appMediasoup.produce(track, 'screenshare')
-      updateParticipantState(user?.id as number, {
-        ...roomState,
-        producing: {
-         ...roomState?.producing ?? {},
-         screenshare: true
-        }
-      })
     } catch(err) {
       console.log("error: shareScreen:", err)
       if(err instanceof Error) {
@@ -61,13 +53,6 @@ export function Apps(props: Props) {
   function stopScreenshare() {
     if(trackRef.current) {
       trackRef.current.stop()
-      updateParticipantState(user?.id as number, {
-        ...roomState,
-        producing: {
-         ...roomState?.producing ?? {},
-         screenshare: false
-        }
-      })
       appSocket.stopProducing({
         roomId,
         roomKind: 'screenshare'
