@@ -12,6 +12,7 @@ import { ParticipantMenu } from "@/pages/room/components"
 import { useMe } from "@/hooks/queries"
 import { ShieldIcon } from "lucide-react"
 import { appMediasoup } from "@/lib/AppMediasoup"
+import { ScreenShare } from 'lucide-react'
 
 type Props = {
   room: SocketRoom
@@ -88,7 +89,8 @@ type OverlayProps = {
 function Overlay(props: OverlayProps) {
   const { participant, consume } = props
   return (
-    <div role="button" onClick={() => consume(participant.id)} className="absolute hidden bottom-0 h-full left-0 bg-black/70 group-hover:flex items-center justify-center">
+    <div role="button" onClick={() => consume(participant.id)} className="absolute hidden bottom-0 h-full left-0 bg-black/70 group-hover:flex items-center justify-center flex-col gap-1">
+      <ScreenShare className="group-hover:hidden" />
       <p className="text-xs text-center">{participant.username}</p>
     </div>
   )

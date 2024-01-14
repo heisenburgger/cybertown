@@ -14,8 +14,11 @@ export function Apps(props: Props) {
   const { data: user } = useMe()
   const { roomId } = props
   const trackRef = useRef<MediaStreamTrack | null>(null)
-  const roomState = useRoomStore(state => state.participants[user?.id as number])
-  const isScreensharing = roomState?.producing?.screenshare
+  const isScreensharing = useRoomStore(state => {
+    // am I sharing my screen?
+    const me = state.participants[user?.id as number]
+    return me?.producers.findIndex(producer => producer.roomKind === 'screenshare') !== -1
+  })
 
   async function getTrack() {
     try {

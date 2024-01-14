@@ -1,5 +1,6 @@
 import { ProfileUser } from "@/types/entity"
 import { RtpCapabilities } from "mediasoup/node/lib/types"
+import { RoomMediaKind } from "./mediasoup"
 
 export type RoomJoinedPayload = {
   roomId: number
@@ -41,4 +42,22 @@ export type RoomChatClearedPayload = {
   by: ProfileUser
   to: ProfileUser
   roomId: number
+}
+
+type ParticipantProducer = {
+  id: string
+  userId: number
+  roomKind: RoomMediaKind
+}
+
+type ParticipantConsumer = {
+  id: string
+  userId: number
+  producerId: string
+  roomKind: RoomMediaKind
+}
+
+export type ParticipantState = {
+  producers: ParticipantProducer[]
+  consumers: ParticipantConsumer[]
 }

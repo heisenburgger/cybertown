@@ -23,8 +23,17 @@ export function Room() {
   const { data: events } = useRoomEvents(roomId)
   const room = rooms?.find(room => room.id === roomId)
   const participants = room?.participants ?? []
-  const roomState = useRoomStore(state => state.participants[user?.id as number])
-  const isVideoPlaying = roomState?.producing?.screenshare || roomState?.producing?.webcam || roomState?.consuming.findIndex(consumer => consumer.roomKind === 'screenshare') !== -1
+
+  const isVideoPlaying = useRoomStore(state => {
+    // am I sharing my screen?
+    const me = state.participants[user?.id as number]
+    const isScreensharing = me?.producers.findIndex(producer => producer.roomKind === 'screenshare') !== -1
+
+    // am I consuming some media produced by others?
+    const isConsuming = Object.values(state.participants).map(participant => participant.consumers).flat().findIndex(consumer => consumer.userId === user?.id as number && consumer.roomKind === 'screenshare') !== -1
+    
+    return isScreensharing || isConsuming
+  })
 
   useEffect(() => {
     if (!user || isNaN(roomId)) {

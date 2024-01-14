@@ -11,24 +11,7 @@ import os from 'os';
 import { Peer } from '@/mediasoup/Peer';
 import { config } from '@/mediasoup/config';
 import { RoomMediaKind, TransportDirection } from '@/types/mediasoup';
-import { consumers } from 'stream';
-
-type ConsumerState = {
-  userId: number
-  roomKind: RoomMediaKind
-  producerId: string
-  consumerId: string
-}
-
-export type RoomParticipantState = {
-  producing: {
-    screenshare: boolean
-    microphone: boolean
-    webcam: boolean
-  },
-  consuming: ConsumerState[]
-  consumers: ConsumerState[] 
-}
+import { ParticipantState } from '@/types/event-payload';
 
 export class AppMediasoup {
 	workerIdx = 0;
@@ -225,30 +208,22 @@ export class AppMediasoup {
       console.log("error: AppMediasoup: getState: missing room")
       return {}
     }
-    const state: Record<number, RoomParticipantState> = {}
+    const state: Record<number, ParticipantState> = {}
     for(let key in room.state) {
       const userId = parseInt(key)
       const peer = room.state[key]
       state[userId]  = {
-        consuming: [],
-        producing: {
-          screenshare: peer.producers.findIndex(producer => producer.appData.roomKind === 'screenshare') !== -1,
-          webcam: false,
-          microphone: false,
-        },
-        consumers: peer.consumers.map(consumer => {
-          const consumerState = {
-            ...consumer.appData as any,
-            consumerId: consumer.id,
-          }
-          const userId = consumer.appData.userId
-          if(!state[userId as number].consuming) {
-            state[userId as number].consuming = [{...consumerState, userId: parseInt(key)}]
-          } else {
-            state[userId as number].consuming.push({...consumerState, userId: parseInt(key)})
-          }
-          return consumerState
-        })
+        producers: peer.producers.map(producer => ({
+          id: producer.id,
+          userId: producer.appData.userId as number,
+          roomKind: producer.appData.roomKind as RoomMediaKind,
+        })),
+        consumers: peer.consumers.map(consumer => ({
+          id: consumer.id,
+          userId: consumer.appData.userId as number,
+          producerId: consumer.appData.producerId as string,
+          roomKind: consumer.appData.roomKind as RoomMediaKind,
+        })),
       }
     }
     return state

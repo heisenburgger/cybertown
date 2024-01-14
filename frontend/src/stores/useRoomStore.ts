@@ -3,26 +3,29 @@ import { create } from 'zustand'
 
 type RoomState = {
   inPM: ProfileUser | null
+  participants: Record<number, ParticipantState>
+
+  // methods
   setInPM: (inPM: ProfileUser | null) => void
-  participants: Record<number, RoomParticipantState>
-  setParticipants: (participants: RoomParticipantState) => void
+  setParticipants: (participants: ParticipantState) => void
 }
 
-type ConsumerState = {
+type ParticipantProducer = {
+  id: string
   userId: number
   roomKind: RoomMediaKind
-  producerId: string
-  consumerId: string
 }
 
-export type RoomParticipantState = {
-  producing: {
-    screenshare: boolean
-    microphone: boolean
-    webcam: boolean
-  },
-  consuming: ConsumerState[]
-  consumers: ConsumerState[] 
+type ParticipantConsumer = {
+  id: string
+  userId: number
+  producerId: string
+  roomKind: RoomMediaKind
+}
+
+export type ParticipantState = {
+  producers: ParticipantProducer[]
+  consumers: ParticipantConsumer[]
 }
 
 export const useRoomStore = create<RoomState>((set) => ({
@@ -31,7 +34,7 @@ export const useRoomStore = create<RoomState>((set) => ({
   setInPM: (inPM) => {
     set((state) => ({...state, inPM}))
   },
-  setParticipants: (participants: RoomParticipantState) => {
+  setParticipants: (participants: ParticipantState) => {
     set(state => ({ ...state, participants }))
   }
 }))
