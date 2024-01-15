@@ -16,6 +16,7 @@ export const envSchema = z.object({
   POSTGRES_DB: z.string(),
   POSTGRES_HOST: z.string(),
   POSTGRES_PORT: z.coerce.number(),
+  MEDIASOUP_LISTEN_IP: z.string(),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>

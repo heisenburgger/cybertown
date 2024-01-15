@@ -1,3 +1,5 @@
+import { config as appConfig } from '@/index'
+
 export const config = {
 	worker: {
 		rtcMinPort: 40000,
@@ -25,7 +27,7 @@ export const config = {
 	webRtcTransport: {
 		listenIps: [
 			// using env var for this
-			{ ip: '127.0.0.1', announcedIP: undefined },
+			{ ip: appConfig.mediasoupListenIP, announcedIP: undefined },
 		],
 		initialAvailableOutgoingBitrate: 800000,
 	},
