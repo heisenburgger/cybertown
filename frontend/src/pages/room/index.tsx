@@ -30,7 +30,7 @@ export function Room() {
     const isScreensharing = me?.producers.findIndex(producer => producer.roomKind === 'screenshare') !== -1
 
     // am I consuming some media produced by others?
-    const isConsuming = Object.values(state.participants).map(participant => participant.consumers).flat().findIndex(consumer => consumer.userId === user?.id as number && consumer.roomKind === 'screenshare') !== -1
+    const isConsuming = !!Object.values(state.participants).map(participant => participant.consumers).flat().find(consumer => consumer.userId === user?.id as number && consumer.roomKind === 'screenshare')
     
     return isScreensharing || isConsuming
   })

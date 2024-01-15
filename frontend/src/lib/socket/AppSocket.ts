@@ -13,7 +13,7 @@ class AppSocket {
       return
     }
 
-    const url = config.apiURL.replace('/v1', '')
+    const url = config.apiURL.replace('/api/v1', '')
     this.socket = io(url, {
       withCredentials: true,
     })
