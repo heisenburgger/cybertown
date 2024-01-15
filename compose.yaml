@@ -1,6 +1,7 @@
 version: '3'
 services:
   caddy:
+    container_name: caddy
     image: caddy
     ports:
      - 80:80
@@ -11,6 +12,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./frontend-dist:/frontend-dist
   backend:
+    container_name: frontend
     depends_on: 
       - postgres-db
     restart: unless-stopped
@@ -46,5 +48,4 @@ services:
       - POSTGRES_DB=$POSTGRES_DB
   frontend:
     build: ./frontend
-    volumes:
-      - ./frontend-dist:/app/dist
+    container_name: frontend
