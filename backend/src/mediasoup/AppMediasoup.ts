@@ -12,6 +12,7 @@ import { Peer } from '@/mediasoup/Peer';
 import { config } from '@/mediasoup/config';
 import { RoomMediaKind, TransportDirection } from '@/types/mediasoup';
 import { ParticipantState } from '@/types/event-payload';
+import { config as appConfig } from '@/index'
 
 export class AppMediasoup {
 	workerIdx = 0;
@@ -132,7 +133,10 @@ export class AppMediasoup {
 			return;
 		}
 		const transport = await router.createWebRtcTransport({
-			...config.webRtcTransport,
+      initialAvailableOutgoingBitrate: config.webRtcTransport.initialAvailableOutgoingBitrate,
+      listenIps: [
+        { announcedIp: undefined, ip: appConfig.mediasoupListenIP }
+      ],
 			enableTcp: true,
 			enableUdp: true,
 			preferUdp: true,
