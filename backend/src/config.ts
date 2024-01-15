@@ -28,7 +28,10 @@ export function getConfig(envVars: EnvSchema) {
       accessTokenExpiry: envVars.JWT_ACCESS_TOKEN_EXPIRY,
       refreshTokenExpiry: envVars.JWT_REFRESH_TOKEN_EXPIRY,
     },
-    mediasoupListenIP: envVars.MEDIASOUP_LISTEN_IP,
+    mediasoup:{
+      ip: envVars.MEDIASOUP_IP,
+      announcedIP: envVars.MEDIASOUP_ANNOUNCED_IP,
+    },
     allowedOrigins: envVars.ALLOWED_ORIGINS,
     port: envVars.PORT,
     webRedirectURL: envVars.WEB_REDIRECT_URL,

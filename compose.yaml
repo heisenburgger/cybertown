@@ -6,6 +6,7 @@ services:
       - postgres-db
     restart: unless-stopped
     build: ./backend
+    network_mode: host
     ports:
      - 7777:7777
     env_file: ./.env
@@ -29,8 +30,7 @@ services:
     image: postgres:16.1
     container_name: postgres-db
     env_file: ./.env
-    ports:
-      - 5432:5432
+    network_mode: host
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     environment:

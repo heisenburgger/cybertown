@@ -135,7 +135,7 @@ export class AppMediasoup {
 		const transport = await router.createWebRtcTransport({
       initialAvailableOutgoingBitrate: config.webRtcTransport.initialAvailableOutgoingBitrate,
       listenIps: [
-        { announcedIp: undefined, ip: appConfig.mediasoupListenIP }
+        { announcedIp: appConfig.mediasoup.announcedIP, ip: appConfig.mediasoup.ip }
       ],
 			enableTcp: true,
 			enableUdp: true,
