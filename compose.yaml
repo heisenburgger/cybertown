@@ -1,16 +1,5 @@
 version: '3'
 services:
-  caddy:
-    container_name: caddy
-    image: caddy
-    ports:
-     - 80:80
-     - 443:443
-    volumes:
-      - ./caddy/data:/data
-      - ./caddy/config:/config
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./frontend-dist:/frontend-dist
   backend:
     container_name: backend
     depends_on: 

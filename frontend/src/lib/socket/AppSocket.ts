@@ -15,6 +15,8 @@ class AppSocket {
 
     const url = config.apiURL.replace('/api/v1', '')
     this.socket = io(url, {
+      path: "/socket.io",
+      transports: ["websocket"],
       withCredentials: true,
     })
 
