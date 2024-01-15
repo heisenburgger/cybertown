@@ -26,7 +26,7 @@ const schema = z.object({
 
 // TODO: use the room metadata api for this
 export function WelcomeMessage(props: Props) {
-  const { welcomeMessage, room } = props
+  const { welcomeMessage } = props
   const loading = false
 
   const form = useForm<z.infer<typeof schema>>({
@@ -38,6 +38,7 @@ export function WelcomeMessage(props: Props) {
 
   async function onSubmit(values: z.infer<typeof schema>) {
     try {
+      console.log("values:", values)
     } catch(err) {
       console.log('error: failed to update welcome message:', err)
       if(err instanceof Error) {

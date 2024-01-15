@@ -1,6 +1,7 @@
-import { RoomParticipantState, useRoomStore } from "@/stores";
+import { useRoomStore } from "@/stores";
 import { appMediasoup } from "../AppMediasoup";
 import { TransportOptions, TransportDirection, ConsumeStopPayload } from '@/types'
+import { ParticipantState } from '@/stores/useRoomStore'
 
 export const mediasoupHandler = {
   transportOptions(data: Record<TransportDirection, TransportOptions>) {
@@ -19,7 +20,7 @@ export const mediasoupHandler = {
     appMediasoup.stopConsuming(data.roomKind)
   },
 
-  mediasoupState(state: Record<number, RoomParticipantState>) {
+  mediasoupState(state: Record<number, ParticipantState>) {
     console.log("mediasoupState:", state)
     const roomState = useRoomStore.getState()
     useRoomStore.setState({

@@ -20,7 +20,7 @@ import {
   ConsumeStopPayload,
 } from '@/types';
 import { ConsumerOptions } from 'mediasoup-client/lib/Consumer';
-import { RoomParticipantState } from '@/stores/useRoomStore'
+import { ParticipantState } from '@/stores/useRoomStore'
 
 export interface ServerToClientEvents {
 	'room:participant:joined': (data: RoomJoinedPayload) => void;
@@ -36,7 +36,7 @@ export interface ServerToClientEvents {
 		tpOptions: Record<TransportDirection, TransportOptions>,
 	) => void;
   'room:mediasoup:consume:stop': (data: ConsumeStopPayload) => void;
-  'room:mediasoup:state': (state: Record<number, RoomParticipantState>) => void;
+  'room:mediasoup:state': (state: Record<number, ParticipantState>) => void;
 }
 
 export interface ClientToServerEvents {
