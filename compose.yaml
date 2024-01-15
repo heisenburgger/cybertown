@@ -1,4 +1,14 @@
+version: '3'
 services:
+  caddy:
+    image: caddy
+    ports:
+     - 80:80
+     - 443:443
+    volumes:
+      - ./caddy/data:/data
+      - ./caddy/configl:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile
   backend:
     depends_on: 
       - postgres-db
