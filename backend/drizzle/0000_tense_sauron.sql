@@ -1,3 +1,9 @@
+DO $$ BEGIN
+ CREATE TYPE "provider" AS ENUM('google', 'github');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "auth_providers" (
 	"provider" "provider" NOT NULL,
 	"user_id" integer NOT NULL,

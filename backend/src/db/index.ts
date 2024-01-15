@@ -9,7 +9,11 @@ export let db: NodePgDatabase<typeof schema>
 export async function initDB(config: Config) {
   try {
     const pool = new Pool({
-      connectionString: config.postgresDSN
+      host: config.postgres.host,
+      port: config.postgres.port,
+      user: config.postgres.user,
+      password: config.postgres.password,
+      database: config.postgres.db,
     })
     await pool.connect()
     db = drizzle(pool, { schema, logger: false })

@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import { config as dotenvConfig } from 'dotenv'
 import express from 'express'
 import { cors } from '@/middleware/cors'
 import { errorHandler, notFoundHandler } from '@/lib/handler'
@@ -15,6 +15,8 @@ import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketDa
 import { isSocketAuthenticated } from '@/middleware'
 import { AppMediasoup } from './mediasoup/AppMediasoup'
 import { registerMediasoupHandler } from './socket/registerMediasoupHandlers'
+
+dotenvConfig({ path: '../.env' })
 
 const app = express()
 export const router = express.Router()

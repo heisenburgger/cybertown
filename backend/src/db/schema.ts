@@ -2,7 +2,7 @@ import { pgTable, varchar, timestamp, serial, pgEnum, integer, primaryKey, jsonb
 import { RoomMetadata } from '@/types/entity'
 
 // TODO: migration file doesn't contain this?
-const authProviderEnum = pgEnum('provider', ['google', 'github'])
+export const authProviderEnum = pgEnum('provider', ['google', 'github'])
 
 export const users = pgTable('users', {
   id: serial("id").primaryKey(),

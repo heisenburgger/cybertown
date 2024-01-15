@@ -3,7 +3,6 @@ import z from 'zod';
 export const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
-  POSTGRES_DSN: z.string(),
   JWT_SECRET: z.string(),
   JWT_ACCESS_TOKEN_EXPIRY: z.string(),
   JWT_REFRESH_TOKEN_EXPIRY: z.string(),
@@ -12,6 +11,11 @@ export const envSchema = z.object({
   PORT: z.coerce.number(),
   ALLOWED_ORIGINS: z.string().transform(val => val.split(',')),
   ROOM_ID_PREFIX: z.string().endsWith(":"),
+  POSTGRES_USER: z.string(),
+  POSTGRES_PASSWORD: z.string(),
+  POSTGRES_DB: z.string(),
+  POSTGRES_HOST: z.string(),
+  POSTGRES_PORT: z.coerce.number(),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>

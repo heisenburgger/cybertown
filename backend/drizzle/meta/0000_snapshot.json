@@ -1,5 +1,5 @@
 {
-  "id": "4d5c3b4b-4bfa-4a2e-b453-4e6604d661d5",
+  "id": "c3395145-e997-4715-8c0b-7335cc631241",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -206,7 +206,15 @@
       "uniqueConstraints": {}
     }
   },
-  "enums": {},
+  "enums": {
+    "provider": {
+      "name": "provider",
+      "values": {
+        "google": "google",
+        "github": "github"
+      }
+    }
+  },
   "schemas": {},
   "_meta": {
     "schemas": {},

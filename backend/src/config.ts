@@ -16,7 +16,13 @@ export function getConfig(envVars: EnvSchema) {
       clientID: envVars.GOOGLE_CLIENT_ID,
       clientSecret: envVars.GOOGLE_CLIENT_SECRET,
     },
-    postgresDSN: envVars.POSTGRES_DSN,
+    postgres: {
+      host: envVars.POSTGRES_HOST,
+      port: envVars.POSTGRES_PORT,
+      user: envVars.POSTGRES_USER,
+      password: envVars.POSTGRES_PASSWORD,
+      db: envVars.POSTGRES_DB,
+    },
     jwt: {
       secret: envVars.JWT_SECRET,
       accessTokenExpiry: envVars.JWT_ACCESS_TOKEN_EXPIRY,

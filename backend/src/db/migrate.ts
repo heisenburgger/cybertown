@@ -1,8 +1,10 @@
-import 'dotenv/config'
-import { migrate } from 'drizzle-orm/postgres-js/migrator'
+import { config as dotenvConfig } from 'dotenv'
+import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import { db, initDB } from '@/db';
 import pg from 'pg'
 import { getConfig, parseEnvVars } from '@/config';
+
+dotenvConfig({ path: '../.env' })
 
 // TODO: why migration script not running?
 async function main() {
@@ -11,10 +13,16 @@ async function main() {
     const config = getConfig(envVars)
     await initDB(config)
     const connection = new pg.Connection({
-      connectionString: config.postgresDSN
+      host: config.postgres.host,
+      port: config.postgres.port,
+      user: config.postgres.user,
+      password: config.postgres.password,
+      database: config.postgres.db,
     });
-    await migrate(db, { migrationsFolder: '../drizzle' });
+    await migrate(db, { migrationsFolder: './drizzle' });
+    console.log("generated migrations")
     connection.end();
+    process.exit(0)
   } catch(err) {
     console.error("failed to run migration:", err)
   }
