@@ -2,6 +2,8 @@
   email heisenburger10012024@gmail.com
 }
 
-cybertown-api.kickbutt.dev {
-  reverse_proxy http://backend:7777
+cybertown.kickbutt.dev {
+  handle /api* {
+     reverse_proxy http://backend:7777
+  }
 }
