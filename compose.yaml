@@ -12,7 +12,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./frontend-dist:/frontend-dist
   backend:
-    container_name: frontend
+    container_name: backend
     depends_on: 
       - postgres-db
     restart: unless-stopped
