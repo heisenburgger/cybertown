@@ -14,19 +14,25 @@ type Props = {
 export function Apps(props: Props) {
   const { data: user } = useMe()
   const { roomId } = props
-  const trackRef = useRef<MediaStreamTrack | null>(null)
+  const streamRef = useRef<{
+    audio: MediaStreamTrack
+    video: MediaStreamTrack
+  } | null>(null)
   const isScreensharing = useRoomStore(useShallow(state => {
     const me = state.participants[user?.id as number]
-    return !!me?.producers.find(producer => producer.roomKind === 'screenshare')
+    return !!me?.producers.find(producer => producer.roomKind === 'screenshare-video')
   }))
 
-  async function getTrack() {
+  async function getStream() {
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
-        audio: false,
-        video: true
+        audio: true,
+        video: {
+          // no idea what this is 
+          frameRate: 10
+        }
       })
-      return stream.getVideoTracks()[0]
+      return stream
     } catch(err) {
       throw err
     }
@@ -34,17 +40,27 @@ export function Apps(props: Props) {
 
   async function shareScreen() {
     try {
-      const track = await getTrack()
-      const videoEl = document.getElementById("screenShareStream")
-      if(!videoEl) {
-        throw new Error("Missing video element")
+      const stream = await getStream()
+      const videoEl = document.getElementById("screenShareStreamVideo")
+      const audioEl = document.getElementById("screenShareStreamAudio")
+      if(!videoEl || !audioEl) {
+        throw new Error("Missing video or audio element")
       }
-      if(videoEl instanceof HTMLVideoElement) {
-        trackRef.current = track
-        videoEl.srcObject = new MediaStream([track])
-        track.onended = stopScreenshare
+      if(videoEl instanceof HTMLVideoElement && audioEl instanceof HTMLAudioElement) {
+        const audioTrack = stream.getAudioTracks()[0]
+        const videoTrack = stream.getVideoTracks()[0]
+        streamRef.current = {
+          audio: audioTrack,
+          video: videoTrack
+        }
+        videoEl.srcObject = new MediaStream([videoTrack])
+        videoTrack.onended = stopScreenshare
+        audioEl.srcObject = new MediaStream([videoTrack])
+        appMediasoup.produce(videoTrack, 'screenshare-video')
+        if(audioTrack) {
+          appMediasoup.produce(audioTrack, 'screenshare-audio')
+        }
       }
-      appMediasoup.produce(track, 'screenshare')
     } catch(err) {
       console.log("error: shareScreen:", err)
       if(err instanceof Error) {
@@ -54,13 +70,14 @@ export function Apps(props: Props) {
   }
 
   function stopScreenshare() {
-    if(trackRef.current) {
-      trackRef.current.stop()
+    if(streamRef.current) {
+      streamRef.current.audio?.stop()
+      streamRef.current.video?.stop()
       appSocket.stopProducing({
         roomId,
-        roomKind: 'screenshare'
+        roomKind: 'screenshare-video'
       })
-      appMediasoup.stopProducing('screenshare')
+      appMediasoup.stopProducing('screenshare-video')
     }
   }
 

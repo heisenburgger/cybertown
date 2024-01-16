@@ -6,6 +6,13 @@ import { Transport } from 'mediasoup-client/lib/Transport'
 import { Producer } from 'mediasoup-client/lib/Producer'
 import { Consumer, ConsumerOptions } from 'mediasoup-client/lib/types'
 
+const roomKindCodecMap = {
+  'screenshare-video': 'video/vp8',
+  'screenshare-audio': 'audio/opus',
+  'webcam': 'video/h264',
+  'microphone': 'audio/opus',
+}
+
 class AppMediasoup {
   device: Device | null = null
   roomId: number | null = null
@@ -77,8 +84,21 @@ class AppMediasoup {
   }
 
   async produce(track: MediaStreamTrack, roomKind: RoomMediaKind) {
+    if(!this.device) {
+      console.log("error: missing device when trying to produce")
+      return
+    }
+
+    // https://mediasoup.org/documentation/v3/tricks/
+    const codec = this.device.rtpCapabilities.codecs?.find(codec => {
+       return codec.mimeType.toLowerCase() === roomKindCodecMap[roomKind]
+    })
+
+    console.log("selected codec for producer:", codec)
+    
     const producer = await this.sendTransport?.produce({
       track,
+      codec, 
       appData: {
         roomKind
       }

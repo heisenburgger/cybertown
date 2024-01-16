@@ -41,7 +41,7 @@ export type TransportOptions = {
   dtlsParameters: DtlsParameters;
 }
 
-export type RoomMediaKind = 'screenshare' | 'webcam' | 'microphone';
+export type RoomMediaKind = 'screenshare-video' | 'screenshare-audio' | 'webcam' | 'microphone';
 
 export type ProduceStopPayload = {
   roomId: number

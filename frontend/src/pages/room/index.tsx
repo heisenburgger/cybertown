@@ -28,10 +28,10 @@ export function Room() {
   const isVideoPlaying = useRoomStore(useShallow(state => {
     // am I sharing my screen?
     const me = state.participants[user?.id as number]
-    const isScreensharing = !!me?.producers.find(producer => producer.roomKind === 'screenshare')
+    const isScreensharing = !!me?.producers.find(producer => producer.roomKind === 'screenshare-video')
 
     // am I consuming some media produced by others?
-    const isConsuming = !!Object.values(state.participants).map(participant => participant.consumers).flat().find(consumer => consumer.userId === user?.id as number && consumer.roomKind === 'screenshare')
+    const isConsuming = !!Object.values(state.participants).map(participant => participant.consumers).flat().find(consumer => consumer.userId === user?.id as number && consumer.roomKind === 'screenshare-video')
     
     return isScreensharing || isConsuming
   }))
@@ -58,9 +58,10 @@ export function Room() {
           <div className="h-[60px] border-b">
           </div>
           <div className="relative border border-r-0 w-full h-full flex items-center justify-center">
-            <video autoPlay id="screenShareStream" className={cn("border-red-500 absolute h-full w-full", {
+            <video autoPlay id="screenShareStreamVideo" className={cn("border-red-500 absolute h-full w-full", {
               'hidden': !isVideoPlaying
             })} />
+            <audio autoPlay id="screenShareStreamAudio" className="hidden" />
             {!isVideoPlaying && <p>{room.metadata.welcomeMessage?.replace('[username]', user.username)}</p>}
           </div>
         </div>

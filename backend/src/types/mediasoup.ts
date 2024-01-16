@@ -55,7 +55,7 @@ export type ConsumerOptions = {
   producerId: string
 }
 
-export type RoomMediaKind = 'screenshare' | 'webcam' | 'microphone';
+export type RoomMediaKind = 'screenshare-audio' | 'screenshare-video' | 'webcam' | 'microphone';
 
 export type ProduceStopPayload = {
   roomId: number

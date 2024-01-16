@@ -24,13 +24,22 @@ export function Participants(props: Props) {
   const { participants, room } = props
 
   function consume(participantId: number) {
-    appMediasoup.consume(participantId, 'screenshare', (track) => {
-      const videoEl = document.getElementById("screenShareStream")
+    appMediasoup.consume(participantId, 'screenshare-video', (track) => {
+      const videoEl = document.getElementById("screenShareStreamVideo")
       if(!videoEl) {
         throw new Error("Missing video element")
       }
       if(videoEl instanceof HTMLVideoElement) {
         videoEl.srcObject = new MediaStream([track])
+      }
+    })
+    appMediasoup.consume(participantId, 'screenshare-audio', (track) => {
+      const audioEl = document.getElementById("screenShareStreamAudio")
+      if(!audioEl) {
+        throw new Error("Missing audio element")
+      }
+      if(audioEl instanceof HTMLAudioElement) {
+        audioEl.srcObject = new MediaStream([track])
       }
     })
   }
