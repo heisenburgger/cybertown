@@ -86,7 +86,8 @@ export async function updateRoomMetadataHandler(req: Request, res: Response, _ne
 
   // check if participants involved are valid
   const participants = await userRepo.getUserProfiles([body.participantId, userId])
-  if(participants.length !== 2) {
+  const isParticipantsValid = body.participantId === userId ? participants.length === 1 : participants.length === 2
+  if(!isParticipantsValid) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid participants")
   }
 
@@ -97,8 +98,9 @@ export async function updateRoomMetadataHandler(req: Request, res: Response, _ne
     const socketUserId = socket.data.auth?.userId 
     return socketUserId === userId || socketUserId === body.participantId
   })
-  if(sockets.length !== 2) {
-    throw new AppError(httpStatus.BAD_REQUEST, "The participant or user in not in room")
+  const isParticipantsInRoom = body.participantId === userId ? sockets.length === 1 : sockets.length === 2
+  if(!isParticipantsInRoom) {
+    throw new AppError(httpStatus.BAD_REQUEST, "The participant or user is not in room")
   }
 
   const user = participants.find(participant => participant.id === userId)
@@ -119,6 +121,19 @@ export async function updateRoomMetadataHandler(req: Request, res: Response, _ne
         event
       })
     }
+  }
+
+  if(typeof req.query.welcomeMessage === 'string') {
+    const event = roomService.updateWelcomeMessage({
+      welcomeMessage: req.query.welcomeMessage,
+      participant: participant!,
+      room,
+    })
+    await roomRepo.updateRoom(room, roomId)
+    io.in(socketRoomId).emit('room:welcomeMessage:updated', event)
+    return res.send({
+      event
+    })
   }
 
   res.status(httpStatus.BAD_REQUEST).send({

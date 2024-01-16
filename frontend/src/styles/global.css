@@ -31,25 +31,44 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html, body, #root {
     @apply h-full
   }
+
   textarea {
     resize: none;
   }
+
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 1rem;
   }
+
   .dropdown-content {
     width: var(--radix-dropdown-menu-trigger-width);
   }
+
   .chat {
     max-height: calc(100vh - 136px);
     overflow: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .chat::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .chat::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .chat::-webkit-scrollbar-thumb {
+    background:	#1f2937;
   }
 }

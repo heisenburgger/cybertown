@@ -10,6 +10,7 @@ type RoomLogEvent = Extract<RoomEvent, { type: `log:${string}` }>
 type AttendanceLogEvent = Extract<RoomLogEvent, { type: `${string}:${'join' | 'leave'}` }>
 type CoOwnershipEvent = Extract<RoomLogEvent, { type: 'log:coOwnership' }>
 type ClearChatEvent = Extract<RoomLogEvent, { type: 'log:clearChat' }>
+type WelcomeMessageEvent = Extract<RoomLogEvent, { type: 'log:welcomeMessage' }>
 
 export function Log(props: Props) {
   const { log } = props
@@ -21,6 +22,8 @@ export function Log(props: Props) {
     user = log.payload.user
   } else if(log.type === 'log:coOwnership' || log.type === 'log:clearChat') {
     user = log.payload.to
+  } else if(log.type === 'log:welcomeMessage') {
+    user = log.payload.by
   }
 
   return (
@@ -33,6 +36,9 @@ export function Log(props: Props) {
       )}
       {log.type.endsWith(":clearChat") && (
        <ClearChatLog log={log as ClearChatEvent} />
+      )}
+      {log.type.endsWith(":welcomeMessage") && (
+       <WelcomeMessageLog log={log as WelcomeMessageEvent} />
       )}
       {user && (
         <Avatar key={user.id} className="w-5 h-5 rounded-sm">
@@ -82,5 +88,17 @@ function ClearChatLog(props: ClearChatLogProps) {
   const { by, to } = log.payload
   return (
     <p className="text-red-500">{by.username} has removed all messages of {to.username}</p>
+  )
+}
+
+type WelcomeMessageLogProps = {
+  log: WelcomeMessageEvent
+}
+
+function WelcomeMessageLog(props: WelcomeMessageLogProps) {
+  const { log } = props
+  const { by } = log.payload
+  return (
+    <p className="text-yellow-500">{by.username} has updated the welcome message</p>
   )
 }

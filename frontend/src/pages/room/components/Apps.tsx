@@ -5,6 +5,7 @@ import { appMediasoup } from "@/lib/AppMediasoup";
 import { appSocket } from "@/lib/socket/AppSocket";
 import { useRoomStore } from "@/stores";
 import { useMe } from "@/hooks/queries";
+import { useShallow } from 'zustand/react/shallow'
 
 type Props = {
   roomId: number
@@ -14,10 +15,10 @@ export function Apps(props: Props) {
   const { data: user } = useMe()
   const { roomId } = props
   const trackRef = useRef<MediaStreamTrack | null>(null)
-  const isScreensharing = useRoomStore(state => {
+  const isScreensharing = useRoomStore(useShallow(state => {
     const me = state.participants[user?.id as number]
     return !!me?.producers.find(producer => producer.roomKind === 'screenshare')
-  })
+  }))
 
   async function getTrack() {
     try {

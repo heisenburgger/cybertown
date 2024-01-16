@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io"
 import { ProfileUser, Room } from "./entity"
-import { ParticipantState, RoomChatClearPayload, RoomChatClearedPayload, RoomCoOwnershipPayload, RoomJoinedPayload, RoomLeavePayload, RoomMessageReq, RoomPrivateMessageReq } from "./event-payload"
+import { ParticipantState, RoomChatClearPayload, RoomChatClearedPayload, RoomCoOwnershipPayload, RoomJoinedPayload, RoomLeavePayload, RoomMessageReq, RoomPrivateMessageReq, RoomWelcomeMessagePayload } from "./event-payload"
 import { PrivateRoomMessage, RoomMessage } from "./entity-message"
 import { ConnectTransportPayload, ConsumePayload, ConsumeResumePayload, ConsumeStopPayload, ConsumerOptions, ProducePayload, ProduceStopPayload as ProduceStopPayload, TransportDirection, TransportOptions } from "./mediasoup"
 
@@ -11,6 +11,7 @@ export interface ServerToClientEvents {
   'room:created': (room: Room) => void
   'room:updated': (room: Room) => void
   'room:coOwnership:updated': (data: RoomCoOwnershipPayload) => void
+  'room:welcomeMessage:updated': (data: RoomWelcomeMessagePayload) => void
   'room:chat:cleared': (data: RoomChatClearedPayload) => void
 
   // mediasoup

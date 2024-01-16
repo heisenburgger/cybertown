@@ -7,6 +7,7 @@ import { Participants, RoomWidget } from "@/pages/room/components"
 import { ProfileUser } from "@/types"
 import { cn } from "@/lib/utils"
 import { useRoomStore } from "@/stores"
+import { useShallow } from 'zustand/react/shallow'
 
 export type InPM = {
   participant: ProfileUser
@@ -24,16 +25,16 @@ export function Room() {
   const room = rooms?.find(room => room.id === roomId)
   const participants = room?.participants ?? []
 
-  const isVideoPlaying = useRoomStore(state => {
+  const isVideoPlaying = useRoomStore(useShallow(state => {
     // am I sharing my screen?
     const me = state.participants[user?.id as number]
-    const isScreensharing = me?.producers.findIndex(producer => producer.roomKind === 'screenshare') !== -1
+    const isScreensharing = !!me?.producers.find(producer => producer.roomKind === 'screenshare')
 
     // am I consuming some media produced by others?
     const isConsuming = !!Object.values(state.participants).map(participant => participant.consumers).flat().find(consumer => consumer.userId === user?.id as number && consumer.roomKind === 'screenshare')
     
     return isScreensharing || isConsuming
-  })
+  }))
 
   useEffect(() => {
     if (!user || isNaN(roomId)) {

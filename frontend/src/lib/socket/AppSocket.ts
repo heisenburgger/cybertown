@@ -31,6 +31,7 @@ class AppSocket {
     this.socket.on('room:created', invalidateRooms)
     this.socket.on('room:participant:left', roomHandler.participantLeft)
     this.socket.on('room:coOwnership:updated', roomHandler.coOwnershipUpdated)
+    this.socket.on('room:welcomeMessage:updated', roomHandler.welcomeMessageUpdated)
     this.socket.on('room:chat:cleared', roomHandler.clearChat)
 
     this.socket.on('room:mediasoup:transportOptions', mediasoupHandler.transportOptions)

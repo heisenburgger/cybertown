@@ -1,5 +1,5 @@
 import { ProfileUser, Room } from '@/types/entity'
-import { RoomCoOwnershipPayload } from '@/types/event-payload'
+import { RoomCoOwnershipPayload, RoomWelcomeMessagePayload } from '@/types/event-payload'
 
 export type RoomRole = 'owner' | 'co-owner' | 'guest'
 
@@ -13,6 +13,20 @@ export const roomService = {
       roomRole = 'co-owner'
     }
     return roomRole
+  },
+
+  updateWelcomeMessage(data: {
+    welcomeMessage: string
+    participant: ProfileUser
+    room: Room
+  }) {
+    const { room, welcomeMessage, participant } = data
+    room.metadata.welcomeMessage = welcomeMessage
+    const event: RoomWelcomeMessagePayload = {
+      by: participant,
+      roomId: room.id
+    }
+    return event
   },
 
   setCoOwnership(data: {

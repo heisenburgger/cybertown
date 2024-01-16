@@ -36,7 +36,7 @@ export function Participants(props: Props) {
   }
 
   return (
-    <div className="flex gap-3 justify-center py-4">
+    <div className="flex gap-3 justify-center py-4 min-h-28">
       {participants.map(participant => {
         const isOwner = room.metadata.owner === participant.id
         const isCoOwner = room.metadata.coOwners?.includes(participant.id)

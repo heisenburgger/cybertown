@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getAvatarFallback } from "@/lib/utils"
 import { XCircle } from "lucide-react"
 import { useRoomStore } from "@/stores"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 
 type Props = {
   roomId: number
@@ -15,6 +15,7 @@ type Props = {
 }
  
 export function Messages(props: Props) {
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { roomId, events } = props
   const { data: user } = useMe()
@@ -42,6 +43,14 @@ export function Messages(props: Props) {
     textareaRef.current.value = ""
   }
 
+  useEffect(() => {
+    if(messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
+        behavior: 'smooth'
+      })
+    }
+  }, [events])
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex-1 py-1 flex flex-col chat">
@@ -52,6 +61,7 @@ export function Messages(props: Props) {
           }
           return <Log key={i} log={event} />
         })}
+        <div ref={messagesEndRef} />
       </div>
       <div>
         {inPM && (

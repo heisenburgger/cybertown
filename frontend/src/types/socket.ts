@@ -18,6 +18,7 @@ import {
 	TransportOptions,
   ProduceStopPayload,
   ConsumeStopPayload,
+  RoomWelcomeMessagePayload,
 } from '@/types';
 import { ConsumerOptions } from 'mediasoup-client/lib/Consumer';
 import { ParticipantState } from '@/stores/useRoomStore'
@@ -29,6 +30,7 @@ export interface ServerToClientEvents {
 	'room:created': (room: Room) => void;
 	'room:updated': (room: Room) => void;
 	'room:coOwnership:updated': (data: RoomCoOwnershipPayload) => void;
+  'room:welcomeMessage:updated': (data: RoomWelcomeMessagePayload) => void
 	'room:chat:cleared': (data: RoomChatClearedPayload) => void;
 
   // mediasoup

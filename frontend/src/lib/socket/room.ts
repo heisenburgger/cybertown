@@ -7,6 +7,7 @@ import {
 	User,
 	RoomCoOwnershipPayload,
   RoomChatClearedPayload,
+  RoomWelcomeMessagePayload,
 } from '@/types';
 import { queryClient } from '@/lib/queryClient';
 import { appMediasoup } from '../AppMediasoup';
@@ -122,6 +123,24 @@ export const roomHandler = {
 			},
 		);
     invalidateRooms()
+	},
+
+	welcomeMessageUpdated(data: RoomWelcomeMessagePayload) {
+    console.log("welcomeMessageUpdated:", data)
+		queryClient.setQueriesData(
+			{
+				queryKey: ['room:events', data.roomId],
+			},
+			(oldData) => {
+				const events = oldData as RoomEvent[];
+				const event: RoomEvent = {
+					type: 'log:welcomeMessage',
+					payload: data,
+				};
+				return [...events, event];
+			},
+		);
+		invalidateRooms();
 	},
 };
 

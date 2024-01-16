@@ -14,6 +14,8 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { SocketRoom } from '@/types'
 import { toast } from 'sonner'
+import { useUpdateRoomMetadata } from '@/hooks/mutations'
+import { useMe } from '@/hooks/queries'
 
 type Props = {
   welcomeMessage: string
@@ -21,12 +23,14 @@ type Props = {
 }
 
 const schema = z.object({
-  welcomeMessage: z.string().optional()
+  welcomeMessage: z.string()
 })
 
 // TODO: use the room metadata api for this
 export function WelcomeMessage(props: Props) {
-  const { welcomeMessage } = props
+  const { data: user } = useMe()
+  const { welcomeMessage, room } = props
+  const { mutateAsync: updateRoomMetadataMutate } = useUpdateRoomMetadata()
   const loading = false
 
   const form = useForm<z.infer<typeof schema>>({
@@ -37,8 +41,15 @@ export function WelcomeMessage(props: Props) {
   })
 
   async function onSubmit(values: z.infer<typeof schema>) {
+    if(!user) {
+      return
+    }
     try {
-      console.log("values:", values)
+      await updateRoomMetadataMutate({
+        queryString: `welcomeMessage=${encodeURI(values.welcomeMessage)}`,
+        roomId: room.id,
+        participantId: user.id,
+      })
     } catch(err) {
       console.log('error: failed to update welcome message:', err)
       if(err instanceof Error) {
