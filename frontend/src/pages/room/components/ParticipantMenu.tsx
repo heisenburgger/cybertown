@@ -22,6 +22,8 @@ export function ParticipantMenu(props: Props) {
   const { data: user } = useMe()
   const { room, participant } = props
   const { mutateAsync: updateRoomMetadataMutate } = useUpdateRoomMetadata()
+  const isWidgetExpanded =  useRoomStore(state => state.isWidgetExpanded)
+  const setWidgetExpansion =  useRoomStore(state => state.setWidgetExpansion)
 
   const isPartcipantCoOwner = room.metadata.coOwners?.includes(participant.id)
   const isParticipantOwner = room.metadata.owner === participant.id
@@ -56,11 +58,15 @@ export function ParticipantMenu(props: Props) {
   }
 
   function putInPM() {
-    const textareaEl = document.getElementById("sendMessage")
-    if(textareaEl instanceof HTMLTextAreaElement) {
-      textareaEl.focus()
-      setInPM(participant)
-    }
+    setWidgetExpansion(true)
+    // the classic fix
+    setTimeout(() => {
+      const textareaEl = document.getElementById("sendMessage")
+      if(textareaEl instanceof HTMLTextAreaElement) {
+        textareaEl.focus()
+        setInPM(participant)
+      }
+    }, isWidgetExpanded ? 0 : 400)
   }
 
   return (

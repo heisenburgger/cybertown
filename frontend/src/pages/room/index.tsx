@@ -3,17 +3,10 @@ import { useParams } from "react-router-dom"
 import { useMe, useRoomEvents } from "@/hooks/queries"
 import { appSocket } from "@/lib/socket/AppSocket"
 import { useRooms } from "@/hooks/queries"
-import { Participants, RoomWidget } from "@/pages/room/components"
-import { ProfileUser } from "@/types"
+import { Participants, RoomHeader, RoomSidebar, RoomWidget } from "@/pages/room/components"
 import { cn } from "@/lib/utils"
 import { useRoomStore } from "@/stores"
 import { useShallow } from 'zustand/react/shallow'
-
-export type InPM = {
-  participant: ProfileUser
-} | null
-
-export type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 
 // TODO: create a new api for fetching a room by id
 export function Room() {
@@ -24,6 +17,7 @@ export function Room() {
   const { data: events } = useRoomEvents(roomId)
   const room = rooms?.find(room => room.id === roomId)
   const participants = room?.participants ?? []
+  const isWidgetExpanded = useRoomStore(state => state.isWidgetExpanded)
 
   const isVideoPlaying = useRoomStore(useShallow(state => {
     // am I sharing my screen?
@@ -35,6 +29,7 @@ export function Room() {
     
     return isScreensharing || isConsuming
   }))
+
 
   useEffect(() => {
     if (!user || isNaN(roomId)) {
@@ -52,11 +47,10 @@ export function Room() {
   }
 
   return (
-    <div className="h-full grid grid-cols-[1fr_400px]">
+    <div className="h-full room" data-open={isWidgetExpanded}>
       <div className="flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center whitespace-pre-wrap">
-          <div className="h-[60px] border-b">
-          </div>
+          <RoomHeader />
           <div className="relative border border-r-0 w-full h-full flex items-center justify-center">
             <video autoPlay id="screenShareStreamVideo" className={cn("border-red-500 absolute h-full w-full", {
               'hidden': !isVideoPlaying
@@ -67,7 +61,11 @@ export function Room() {
         </div>
         <Participants participants={participants} room={room} />
       </div>
-      <RoomWidget room={room} events={events ?? []} />
+      {isWidgetExpanded ? (
+        <RoomWidget room={room} events={events ?? []} />
+      ) : (
+        <RoomSidebar />
+      )}
     </div>
   )
 }

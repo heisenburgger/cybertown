@@ -33,7 +33,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-hidden;
   }
 
   html, body, #root {
@@ -44,31 +44,45 @@
     resize: none;
   }
 
+  .dropdown-content {
+    width: var(--radix-dropdown-menu-trigger-width);
+  }
+
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 1rem;
   }
 
-  .dropdown-content {
-    width: var(--radix-dropdown-menu-trigger-width);
+  .room {
+    display: grid;
+    grid-template-columns: auto 400px;
+    transition: 300ms;
+  }
+
+  .room[data-open=false] {
+    grid-template-columns: auto 60px;
   }
 
   .chat {
     max-height: calc(100vh - 136px);
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     scrollbar-gutter: stable;
   }
 
-  .chat::-webkit-scrollbar {
+  .chat::-webkit-scrollbar, 
+  textarea::-webkit-scrollbar {
     width: 6px;
   }
 
-  .chat::-webkit-scrollbar-track {
+  .chat::-webkit-scrollbar-track, 
+  textarea::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .chat::-webkit-scrollbar-thumb {
+  .chat::-webkit-scrollbar-thumb, 
+  textarea::-webkit-scrollbar-thumb {
     background:	#1f2937;
   }
 }

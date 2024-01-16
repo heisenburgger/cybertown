@@ -1,8 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RoomEvent, SocketRoom } from "@/types"
 import { Apps, Settings, Messages } from '@/pages/room/components'
+import { Mail, Settings as SettingsIcon, LayoutGrid } from 'lucide-react'
+import { WidgetTab, useRoomStore } from "@/stores"
 
-// use react context to avoid prop drilling
 type Props = {
   room: SocketRoom
   events: RoomEvent[]
@@ -10,12 +11,24 @@ type Props = {
 
 export function RoomWidget(props: Props) {
   const { events, room } = props
+  const setWidgetTab = useRoomStore(state => state.setWidgetTab)
+  const widgetTab = useRoomStore(state => state.widgetTab)
+
   return (
-    <Tabs defaultValue="messages" className="border-l flex flex-col data-[state=active]:*:flex-1">
+    <Tabs defaultValue="messages" className="border-l flex flex-col data-[state=active]:*:flex-1" value={widgetTab} onValueChange={(tab) => setWidgetTab(tab as WidgetTab)}>
       <TabsList className="w-[96%] mx-auto mt-2 flex justify-between *:flex-1">
-        <TabsTrigger value="messages">Messages</TabsTrigger>
-        <TabsTrigger value="apps">Apps</TabsTrigger>
-        <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsTrigger value="messages" className="flex gap-2 items-center rounded-md">
+          <Mail strokeWidth="1" size="16" />
+          <span>Messages</span>
+        </TabsTrigger>
+        <TabsTrigger value="apps" className="flex gap-2 items-center rounded-md">
+          <LayoutGrid strokeWidth="1" size="16" />
+          <span>Apps</span>
+        </TabsTrigger>
+        <TabsTrigger value="settings" className="flex gap-2 items-center rounded-md">
+          <SettingsIcon strokeWidth="1" size="16" />
+          <span>Settings</span>
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="messages">
         <Messages roomId={room.id} events={events} />

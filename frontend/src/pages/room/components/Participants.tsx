@@ -23,6 +23,7 @@ export function Participants(props: Props) {
   const { data: user } = useMe()
   const { participants, room } = props
 
+  // TODO: looks ugly, refactor it
   function consume(participantId: number) {
     appMediasoup.consume(participantId, 'screenshare-video', (track) => {
       const videoEl = document.getElementById("screenShareStreamVideo")
