@@ -2,6 +2,7 @@ import { ProfileUser, User } from "@/types"
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import dayjs from 'dayjs'
+import DOMPurify from 'dompurify';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -33,4 +34,8 @@ export function getTime(timestamp: number) {
 
 export function getDateTime(dateTime: string) {
   return dayjs(dateTime).format('MM-DD-YYYY hh:mm A')
+}
+
+export function cleanInput(dirty: string) {
+  return DOMPurify.sanitize(dirty, { ALLOWED_TAGS: ['em-emoji'] });
 }

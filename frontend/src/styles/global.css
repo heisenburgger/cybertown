@@ -65,8 +65,8 @@
   }
 
   .chat {
-    max-height: calc(100vh - 136px);
     overflow-x: hidden;
+    flex-basis: 0 !important; /* I accidentally typed this in devtools and it started working. */
     overflow-y: auto;
     scrollbar-gutter: stable;
   }
@@ -84,5 +84,16 @@
   .chat::-webkit-scrollbar-thumb, 
   textarea::-webkit-scrollbar-thumb {
     background:	#1f2937;
+  }
+
+  em-emoji-picker {
+    --rgb-accent: 109, 40, 217;
+    --rgb-background: 3, 7, 18;
+    --rgb-color: 249, 250, 251;
+  }
+
+  em-emoji {
+    display: block;
+    margin-top: 0.2rem;
   }
 }

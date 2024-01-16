@@ -7,7 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getAvatarFallback } from "@/lib/utils"
 import { XCircle } from "lucide-react"
 import { useRoomStore } from "@/stores"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+import { EmojiPicker } from "@/components/EmojiPicker"
 
 type Props = {
   roomId: number
@@ -21,6 +22,7 @@ export function Messages(props: Props) {
   const { data: user } = useMe()
   const inPM = useRoomStore(state => state.inPM)
   const setInPM = useRoomStore(state => state.setInPM)
+  const [open, setOpen] = useState(false)
 
   function sendMessage(content: string) {
     if(!user || !textareaRef.current) {
@@ -61,9 +63,9 @@ export function Messages(props: Props) {
           }
           return <Log key={i} log={event} />
         })}
-        <div ref={messagesEndRef} />
+        <div className="mt-1" ref={messagesEndRef} />
       </div>
-      <div>
+      <div className="m-4 border shadow-xl rounded-sm">
         {inPM && (
           <div className="flex items-center justify-between bg-red-500/10 p-1 px-2">
             <div className="flex gap-3 items-center">
@@ -81,8 +83,8 @@ export function Messages(props: Props) {
             </div>
           </div>
         )}
-        <Textarea id="sendMessage" ref={textareaRef} disabled={!user} placeholder="Type your message here" className="border rounded-none border-l-0" onKeyDown={e => {
-          if(e.key === 'Enter') {
+        <Textarea id="sendMessage" className="border-0 p-3" ref={textareaRef} disabled={!user} placeholder="Type your message here" onKeyDown={e => {
+          if(e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
             const value = e.currentTarget.value.trim()
             if(value.length) {
@@ -90,6 +92,15 @@ export function Messages(props: Props) {
             }
           }
         }} />
+        <div className="border-t flex flex-col p-3 py-2">
+          <EmojiPicker open={open} setOpen={setOpen} onSelect={emoji => {
+            if(textareaRef.current) {
+              const emojiText = `<em-emoji size="1.5em" id="${emoji}"></em-emoji>`
+              sendMessage(emojiText)
+              setOpen(false)
+            }
+          }} />
+        </div>
       </div>
     </div>
   )

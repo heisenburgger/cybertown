@@ -1,6 +1,6 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { useMe } from "@/hooks/queries"
-import { cn, getAvatarFallback, getTime } from "@/lib/utils"
+import { cleanInput, cn, getAvatarFallback, getTime } from "@/lib/utils"
 import { PrivateRoomMessage, RoomMessage } from "@/types"
 import { AvatarFallback } from "@radix-ui/react-avatar"
 
@@ -17,7 +17,7 @@ export function Message(props: Props) {
   const isPM = "to" in message
   const isIPMed = "to" in message && message.from.id === user?.id
   const iPMedTo = "to" in message ? message.to : null
-  
+
   return (
     <div className={cn("flex gap-3 py-1.5 px-3", {
       'bg-red-500/10': isPM
@@ -41,11 +41,9 @@ export function Message(props: Props) {
           )}
           <p className="text-muted-foreground text-[10px]">{getTime(message.sentAt)}</p>
         </div>
-        <p className={cn("text-sm pt-1", {
+        <p className={cn("text-sm pt-1 break-all whitespace-pre-wrap", {
           'text-italic text-muted-foreground text-xs': message.isDeleted
-        })}>
-          {message.isDeleted ? "This message is deleted" : message.content }
-        </p>
+        })} dangerouslySetInnerHTML={{ __html: message.isDeleted ? "This message is deleted" : cleanInput(message.content) }} />
       </div>
     </div>
   )
