@@ -24,18 +24,14 @@ export function Apps(props: Props) {
   }))
 
   async function getStream() {
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        audio: true,
-        video: {
-          // no idea what this is 
-          frameRate: 10
-        }
-      })
-      return stream
-    } catch(err) {
-      throw err
-    }
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      audio: true,
+      video: {
+        // no idea what this is 
+        frameRate: 10
+      }
+    })
+    return stream
   }
 
   async function shareScreen() {

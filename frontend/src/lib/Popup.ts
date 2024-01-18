@@ -31,7 +31,7 @@ class Popup {
       return
     }
     if(e.data.type === 'REDIRECTED') {
-      for(let fn of this.callbacks) {
+      for(const fn of this.callbacks) {
         await fn()
       }
     }

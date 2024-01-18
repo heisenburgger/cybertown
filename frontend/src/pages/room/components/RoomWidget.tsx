@@ -1,8 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { RoomEvent, SocketRoom } from "@/types"
+import { RoomEvent, SocketRoom, WidgetTab } from "@/types"
 import { Apps, Settings, Messages } from '@/pages/room/components'
 import { Mail, Settings as SettingsIcon, LayoutGrid } from 'lucide-react'
-import { WidgetTab, useRoomStore } from "@/stores"
+import { useRoomStore } from "@/stores"
 
 type Props = {
   room: SocketRoom

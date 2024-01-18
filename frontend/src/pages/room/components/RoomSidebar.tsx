@@ -4,13 +4,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { WidgetTab, useRoomStore } from "@/stores"
-
+import { useRoomStore } from "@/stores"
 import { Mail, Settings as SettingsIcon, LayoutGrid } from 'lucide-react'
+import { WidgetTab } from '@/types'
 
 export function RoomSidebar() {
   const setWidgetTab = useRoomStore(state => state.setWidgetTab)
-  const setWidgetExpansion = useRoomStore(state => state.setWidgetExpansion)
+  const setWidgetMode = useRoomStore(state => state.setWidgetMode)
 
   const tabs = [
     { Icon: Mail, value: "messages" },
@@ -20,7 +20,7 @@ export function RoomSidebar() {
 
   function openWidget(tab: WidgetTab) {
     setWidgetTab(tab)
-    setWidgetExpansion(true)
+    setWidgetMode('expanded')
   }
 
   return (

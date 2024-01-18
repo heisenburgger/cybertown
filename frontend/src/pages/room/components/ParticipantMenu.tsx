@@ -22,8 +22,10 @@ export function ParticipantMenu(props: Props) {
   const { data: user } = useMe()
   const { room, participant } = props
   const { mutateAsync: updateRoomMetadataMutate } = useUpdateRoomMetadata()
-  const isWidgetExpanded =  useRoomStore(state => state.isWidgetExpanded)
-  const setWidgetExpansion =  useRoomStore(state => state.setWidgetExpansion)
+
+  const isWidgetExpanded =  useRoomStore(state => state.widgetMode === 'expanded')
+  const setWidgetMode =  useRoomStore(state => state.setWidgetMode)
+  const setInPMWith = useRoomStore(state => state.setInPMWith)
 
   const isPartcipantCoOwner = room.metadata.coOwners?.includes(participant.id)
   const isParticipantOwner = room.metadata.owner === participant.id
@@ -32,8 +34,6 @@ export function ParticipantMenu(props: Props) {
   const isCoOwner = user?.id === room.metadata.coOwners?.includes(user?.id as number)
 
   const hasPermissions = (isOwner || isCoOwner) && !isParticipantOwner
-
-  const setInPM = useRoomStore(state => state.setInPM)
 
   async function setCoOwnership(unset = false) {
     try {
@@ -58,13 +58,13 @@ export function ParticipantMenu(props: Props) {
   }
 
   function putInPM() {
-    setWidgetExpansion(true)
+    setWidgetMode("expanded")
     // the classic fix
     setTimeout(() => {
       const textareaEl = document.getElementById("sendMessage")
       if(textareaEl instanceof HTMLTextAreaElement) {
         textareaEl.focus()
-        setInPM(participant)
+        setInPMWith(participant)
       }
     }, isWidgetExpanded ? 0 : 400)
   }

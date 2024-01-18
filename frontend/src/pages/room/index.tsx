@@ -17,7 +17,7 @@ export function Room() {
   const { data: events } = useRoomEvents(roomId)
   const room = rooms?.find(room => room.id === roomId)
   const participants = room?.participants ?? []
-  const isWidgetExpanded = useRoomStore(state => state.isWidgetExpanded)
+  const isWidgetExpanded = useRoomStore(state => state.widgetMode === 'expanded')
 
   const isVideoPlaying = useRoomStore(useShallow(state => {
     // am I sharing my screen?

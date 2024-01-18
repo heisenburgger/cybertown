@@ -1,55 +1,39 @@
-import { ProfileUser, RoomMediaKind } from '@/types'
 import { create } from 'zustand'
+import { immer } from 'zustand/middleware/immer'
+import { ParticipantState, ProfileUser } from "@/types"
+import { WidgetMode, WidgetTab } from '@/types'
 
-export type WidgetTab = 'messages' | 'apps' | 'settings'
-
-type RoomState = {
-  inPM: ProfileUser | null
-  participants: Record<number, ParticipantState>
-  isWidgetExpanded: boolean
+type State = {
+  // the participant with whom the logged in user is private messaging
+  inPMWith: ProfileUser | null
+  widgetMode: WidgetMode
   widgetTab: WidgetTab
   unreadMessagesCount: number
+  participants: Record<number, ParticipantState>
+}
 
-  // methods
-  setInPM: (inPM: ProfileUser | null) => void
-  setWidgetExpansion: (isExpanded: boolean) => void
-  setParticipants: (participants: ParticipantState) => void
+type Actions = {
+  setInPMWith: (inPMWith: ProfileUser | null) => void
   setWidgetTab: (widgetTab: WidgetTab) => void
+  setWidgetMode: (widgetMode: WidgetMode) => void
 }
 
-type ParticipantProducer = {
-  id: string
-  userId: number
-  roomKind: RoomMediaKind
-}
-
-type ParticipantConsumer = {
-  id: string
-  userId: number
-  producerId: string
-  roomKind: RoomMediaKind
-}
-
-export type ParticipantState = {
-  producers: ParticipantProducer[]
-  consumers: ParticipantConsumer[]
-}
-
-export const useRoomStore = create<RoomState>((set) => ({
-  inPM: null,
-  participants: {},
-  isWidgetExpanded: true,
+export const useRoomStore = create<State & Actions>()(immer((set) => ({
+  inPMWith: null,
   widgetTab: 'messages',
+  widgetMode: 'collapsed',
   unreadMessagesCount: 0,
+  participants: {},
 
-  setInPM: (inPM) => {
-    set((state) => ({...state, inPM}))
-  },
-  setWidgetExpansion: (isWidgetExpanded) => set((state) => ({...state, isWidgetExpanded})),
-  setParticipants: (participants: ParticipantState) => {
-    set(state => ({ ...state, participants }))
-  },
-  setWidgetTab: (widgetTab) => {
-    set((state) => ({...state, widgetTab}))
-  },
-}))
+  setInPMWith: (inPMWith) => set((state: State) => {
+    state.inPMWith = inPMWith
+  }),
+
+  setWidgetTab: (widgetTab) => set((state: State) => {
+    state.widgetTab = widgetTab
+  }),
+
+  setWidgetMode: (widgetMode) => set((state: State) => {
+    state.widgetMode = widgetMode
+  }),
+})))

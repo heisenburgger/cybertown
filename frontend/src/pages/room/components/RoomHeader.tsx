@@ -8,11 +8,11 @@ import {
 } from "@/components/ui/tooltip"
 
 export function RoomHeader() {
-  const isWidgetExpanded = useRoomStore(state => state.isWidgetExpanded)
-  const setWidgetExpansion = useRoomStore(state => state.setWidgetExpansion)
+  const isWidgetExpanded = useRoomStore(state => state.widgetMode === 'expanded')
+  const setWidgetMode = useRoomStore(state => state.setWidgetMode)
 
   function handleWidgetExpansion() {
-    setWidgetExpansion(!isWidgetExpanded)
+    setWidgetMode(isWidgetExpanded ? 'collapsed' : 'expanded')
   }
 
   return (

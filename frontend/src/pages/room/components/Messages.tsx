@@ -20,18 +20,18 @@ export function Messages(props: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { roomId, events } = props
   const { data: user } = useMe()
-  const inPM = useRoomStore(state => state.inPM)
-  const setInPM = useRoomStore(state => state.setInPM)
+  const inPMWith = useRoomStore(state => state.inPMWith)
+  const setInPMWith = useRoomStore(state => state.setInPMWith)
   const [open, setOpen] = useState(false)
 
   function sendMessage(content: string) {
     if(!user || !textareaRef.current) {
       return
     }
-    if(inPM) {
+    if(inPMWith) {
       const message: RoomPrivateMessageReq = {
         content,
-        participantId: inPM.id,
+        participantId: inPMWith.id,
         roomId 
       }
       appSocket.sendPrivateMessage(message)
@@ -66,19 +66,19 @@ export function Messages(props: Props) {
         <div className="mt-1" ref={messagesEndRef} />
       </div>
       <div className="m-4 border shadow-xl rounded-sm">
-        {inPM && (
+        {inPMWith && (
           <div className="flex items-center justify-between bg-red-500/10 p-1 px-2">
             <div className="flex gap-3 items-center">
-              <Avatar key={inPM.id} className="rounded-lg w-8 h-8">
-                <AvatarImage src={inPM.avatar} alt={inPM.username} />
-                <AvatarFallback className="rounded-lg">{getAvatarFallback(inPM.username)}</AvatarFallback>
+              <Avatar key={inPMWith.id} className="rounded-lg w-8 h-8">
+                <AvatarImage src={inPMWith.avatar} alt={inPMWith.username} />
+                <AvatarFallback className="rounded-lg">{getAvatarFallback(inPMWith.username)}</AvatarFallback>
               </Avatar>
               <div className="text-sm">
                 <p className="text-xs">Send private message to:</p>
-                <p className="text-primary">{inPM.username}</p>
+                <p className="text-primary">{inPMWith.username}</p>
               </div>
             </div>
-            <div role="button" onClick={() => setInPM(null)}>
+            <div role="button" onClick={() => setInPMWith(null)}>
               <XCircle strokeWidth="1" size="14" />
             </div>
           </div>

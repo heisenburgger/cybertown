@@ -30,6 +30,7 @@
     "dayjs": "^1.11.10",
     "dompurify": "^3.0.8",
     "emoji-mart": "^5.5.2",
+    "immer": "^10.0.3",
     "lucide-react": "^0.304.0",
     "mediasoup-client": "^3.7.1",
     "next-themes": "^0.2.1",

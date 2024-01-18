@@ -19,9 +19,9 @@ import {
   ProduceStopPayload,
   ConsumeStopPayload,
   RoomWelcomeMessagePayload,
+  ParticipantState,
 } from '@/types';
 import { ConsumerOptions } from 'mediasoup-client/lib/Consumer';
-import { ParticipantState } from '@/stores/useRoomStore'
 
 export interface ServerToClientEvents {
 	'room:participant:joined': (data: RoomJoinedPayload) => void;

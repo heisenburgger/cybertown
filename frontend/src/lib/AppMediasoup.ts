@@ -134,9 +134,14 @@ class AppMediasoup {
     consumerId: string
     producerId: string
   }) => void) {
+    if(!this.device) {
+      console.log("error: missing device to consume")
+      return
+    }
+
     appSocket.socket?.emit('room:mediasoup:consume', {
       roomId: this.roomId!,
-      rtpCapabilities: this.device?.rtpCapabilities!,
+      rtpCapabilities: this.device.rtpCapabilities,
       participantId,
       roomKind,
     }, async (consumerOptions: ConsumerOptions) => {
@@ -160,4 +165,4 @@ class AppMediasoup {
   }
 }
 
-export let appMediasoup = new AppMediasoup()
+export const appMediasoup = new AppMediasoup()
