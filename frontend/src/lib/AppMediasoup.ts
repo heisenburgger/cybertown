@@ -4,7 +4,7 @@ import { RtpCapabilities } from 'mediasoup-client/lib/RtpParameters'
 import { appSocket } from '@/lib/socket/AppSocket'
 import { Transport } from 'mediasoup-client/lib/Transport'
 import { Producer } from 'mediasoup-client/lib/Producer'
-import { Consumer, ConsumerOptions } from 'mediasoup-client/lib/types'
+import { Consumer } from 'mediasoup-client/lib/types'
 
 const roomKindCodecMap = {
   'screenshare-video': 'video/vp8',
@@ -56,12 +56,12 @@ class AppMediasoup {
   listenForProduce() {
     this.sendTransport?.on("produce", (data, callback, errback) => {
       console.log("produced data:", data)
-      appSocket.socket?.emit("room:mediasoup:produce", {
+      appSocket.produce({
         roomId: this.roomId!,
         kind: data.kind,
         rtpParameters: data.rtpParameters,
         roomKind: data.appData.roomKind as RoomMediaKind
-      }, (producerId) => {
+      }, producerId => {
         try {
           callback({ id: producerId })
         } catch (err) {
@@ -139,12 +139,12 @@ class AppMediasoup {
       return
     }
 
-    appSocket.socket?.emit('room:mediasoup:consume', {
+    appSocket.consume({
       roomId: this.roomId!,
       rtpCapabilities: this.device.rtpCapabilities,
       participantId,
       roomKind,
-    }, async (consumerOptions: ConsumerOptions) => {
+    }, async (consumerOptions) => {
       const consumer = await this.recvTransport?.consume(consumerOptions)
       if(!consumer) {
         console.log("error: failed to consume")
@@ -155,7 +155,7 @@ class AppMediasoup {
         consumerId: consumer.id,
         producerId: consumer.producerId,
       })
-      appSocket.socket?.emit('room:mediasoup:consume:resume', {
+      appSocket.consumeResume({
         roomId: this.roomId!,
         consumerId: consumer.id,
         roomKind,

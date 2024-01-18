@@ -1,8 +1,9 @@
 import { config } from '@/config'
 import io from 'socket.io-client'
-import { ConnectTransportPayload, ProduceStopPayload, RoomChatClearPayload, RoomMessageReq, RoomPrivateMessageReq, TSocket } from '@/types'
+import { ConnectTransportPayload, ConsumePayload, ConsumeResumePayload, ConsumeStopPayload, ProducePayload, ProduceStopPayload, RoomChatClearPayload, RoomMessageReq, RoomPrivateMessageReq, TSocket } from '@/types'
 import { invalidateRooms, roomHandler } from './room'
 import { mediasoupHandler } from './mediasoup'
+import { ConsumerOptions } from 'mediasoup-client/lib/Consumer'
 
 class AppSocket {
   socket: TSocket | null = null
@@ -66,6 +67,19 @@ class AppSocket {
   stopProducing = (data: ProduceStopPayload) => {
     this.socket?.emit("room:mediasoup:produce:stop", data)
   }
+
+  produce = (data: ProducePayload, cb: (producerId: string) => void) => {
+   this.socket?.emit("room:mediasoup:produce", data, cb)
+  }
+
+  consume = (data: ConsumePayload, cb: (consumerOptions: ConsumerOptions) => void) => {
+   this.socket?.emit("room:mediasoup:consume", data, cb)
+  }
+
+  consumeResume = (data: ConsumeResumePayload) => {
+   this.socket?.emit("room:mediasoup:consume:resume", data)
+  }
 }
+
 
 export const appSocket = new AppSocket()

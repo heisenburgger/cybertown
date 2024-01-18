@@ -1,16 +1,15 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { RoomEvent, SocketRoom, WidgetTab } from "@/types"
+import { SocketRoom, WidgetTab } from "@/types"
 import { Apps, Settings, Messages } from '@/pages/room/components'
 import { Mail, Settings as SettingsIcon, LayoutGrid } from 'lucide-react'
 import { useRoomStore } from "@/stores"
 
 type Props = {
   room: SocketRoom
-  events: RoomEvent[]
 }
 
 export function RoomWidget(props: Props) {
-  const { events, room } = props
+  const { room } = props
   const setWidgetTab = useRoomStore(state => state.setWidgetTab)
   const widgetTab = useRoomStore(state => state.widgetTab)
 
@@ -31,7 +30,7 @@ export function RoomWidget(props: Props) {
         </TabsTrigger>
       </TabsList>
       <TabsContent value="messages">
-        <Messages roomId={room.id} events={events} />
+        <Messages roomId={room.id} />
       </TabsContent>
       <TabsContent value="apps">
         <Apps roomId={room.id} />

@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { useParams } from "react-router-dom"
-import { useMe, useRoomEvents } from "@/hooks/queries"
+import { useMe } from "@/hooks/queries"
 import { appSocket } from "@/lib/socket/AppSocket"
 import { useRooms } from "@/hooks/queries"
 import { Participants, RoomHeader, RoomSidebar, RoomWidget } from "@/pages/room/components"
@@ -14,7 +14,6 @@ export function Room() {
   const { data: rooms } = useRooms()
   const params = useParams()
   const roomId = params.roomId ? parseInt(params.roomId) : NaN
-  const { data: events } = useRoomEvents(roomId)
   const room = rooms?.find(room => room.id === roomId)
   const participants = room?.participants ?? []
   const isWidgetExpanded = useRoomStore(state => state.widgetMode === 'expanded')
@@ -26,7 +25,7 @@ export function Room() {
 
     // am I consuming some media produced by others?
     const isConsuming = !!Object.values(state.participants).map(participant => participant.consumers).flat().find(consumer => consumer.userId === user?.id as number && consumer.roomKind === 'screenshare-video')
-    
+
     return isScreensharing || isConsuming
   }))
 
@@ -62,7 +61,7 @@ export function Room() {
         <Participants participants={participants} room={room} />
       </div>
       {isWidgetExpanded ? (
-        <RoomWidget room={room} events={events ?? []} />
+        <RoomWidget room={room} />
       ) : (
         <RoomSidebar />
       )}

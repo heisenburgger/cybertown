@@ -1,6 +1,5 @@
 import {
 	PrivateRoomMessage,
-	RoomEvent,
 	RoomMessage,
 	RoomJoinedPayload,
 	RoomLeavePayload,
@@ -11,135 +10,65 @@ import {
 } from '@/types';
 import { queryClient } from '@/lib/queryClient';
 import { appMediasoup } from '../AppMediasoup';
+import { useRoomStore } from '@/stores';
 
 export const roomHandler = {
 	broadcastMessage(data: RoomMessage | PrivateRoomMessage) {
-		queryClient.setQueriesData(
-			{
-				queryKey: ['room:events', data.roomId],
-			},
-			(oldData) => {
-				const events = oldData as RoomEvent[];
-				const event: RoomEvent = {
-					type: 'message',
-					payload: data,
-				};
-				return [...events, event];
-			},
-		);
+    console.log("broadcastMessage:", data)
+    useRoomStore.getState().addEvent({
+      type: 'message',
+      payload: data
+    })
 	},
 
 	participantJoined(data: RoomJoinedPayload) {
     console.log("participantJoined:", data)
-		queryClient.setQueriesData(
-			{
-				queryKey: ['room:events', data.roomId],
-			},
-			(oldData) => {
-				const me: User | undefined = queryClient.getQueryData(['me']);
-				if (me?.id === data.user.id) {
-					return;
-				}
-				const events = oldData as RoomEvent[];
-				const event: RoomEvent = {
-					type: 'log:join',
-					payload: data,
-				};
-				return [...events, event];
-			},
-		);
-
-		const user: User | undefined = queryClient.getQueryData(['me']);
+    const user: User | undefined = queryClient.getQueryData(['me']);
 		const isMe = user?.id === data.user.id;
 		if (isMe) {
 			appMediasoup.loadDevice(data.roomId, data.rtpCapabilities);
-		}
-
+		} else {
+      useRoomStore.getState().addEvent({
+        type: 'log:join',
+        payload: data
+      })
+    }
 		invalidateRooms();
 	},
 
 	participantLeft(data: RoomLeavePayload) {
-		queryClient.setQueriesData(
-			{
-				queryKey: ['room:events', data.roomId],
-			},
-			(oldData) => {
-				const events = oldData as RoomEvent[];
-				const event: RoomEvent = {
-					type: 'log:leave',
-					payload: data,
-				};
-				return [...events, event];
-			},
-		);
-
+    console.log("participantLeft:", data)
+    useRoomStore.getState().addEvent({
+      type: 'log:leave',
+      payload: data
+    })
 		invalidateRooms();
 	},
 
 	coOwnershipUpdated(data: RoomCoOwnershipPayload) {
-		queryClient.setQueriesData(
-			{
-				queryKey: ['room:events', data.roomId],
-			},
-			(oldData) => {
-				const events = oldData as RoomEvent[];
-				const event: RoomEvent = {
-					type: 'log:coOwnership',
-					payload: data,
-				};
-				return [...events, event];
-			},
-		);
+    console.log("coOwnershipUpdated:", data)
+    useRoomStore.getState().addEvent({
+      type: 'log:coOwnership',
+      payload: data
+    })
 		invalidateRooms();
 	},
 
 	clearChat(data: RoomChatClearedPayload) {
-		queryClient.setQueriesData(
-			{
-				queryKey: ['room:events', data.roomId],
-			},
-			(oldData) => {
-				const events = oldData as RoomEvent[];
-				const event: RoomEvent = {
-					type: 'log:clearChat',
-					payload: data,
-				};
-				return [...events, event].map((event) => {
-					if (
-						event.type === 'message' &&
-						event.payload.from.id === data.to.id
-					) {
-						return {
-							...event,
-							payload: {
-								...event.payload,
-								content: '',
-								isDeleted: true,
-							},
-						};
-					}
-					return event;
-				});
-			},
-		);
-    invalidateRooms()
+    console.log("clearChat:", data)
+    useRoomStore.getState().addEvent({
+      type: 'log:clearChat',
+      payload: data
+    })
+    useRoomStore.getState().clearChat(data.to.id)
 	},
 
 	welcomeMessageUpdated(data: RoomWelcomeMessagePayload) {
-    console.log("welcomeMessageUpdated:", data)
-		queryClient.setQueriesData(
-			{
-				queryKey: ['room:events', data.roomId],
-			},
-			(oldData) => {
-				const events = oldData as RoomEvent[];
-				const event: RoomEvent = {
-					type: 'log:welcomeMessage',
-					payload: data,
-				};
-				return [...events, event];
-			},
-		);
+    console.log("welcomeMessageUpdated(:", data)
+    useRoomStore.getState().addEvent({
+      type: 'log:welcomeMessage',
+      payload: data
+    })
 		invalidateRooms();
 	},
 };

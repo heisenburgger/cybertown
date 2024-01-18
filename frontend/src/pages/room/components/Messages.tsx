@@ -1,7 +1,7 @@
 import { Textarea } from "@/components/ui/textarea"
 import { useMe } from "@/hooks/queries"
 import { appSocket } from "@/lib/socket/AppSocket"
-import { RoomEvent, RoomMessageReq, RoomPrivateMessageReq } from "@/types"
+import { RoomMessageReq, RoomPrivateMessageReq } from "@/types"
 import { Log, Message } from '@/pages/room/components'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getAvatarFallback } from "@/lib/utils"
@@ -9,19 +9,20 @@ import { XCircle } from "lucide-react"
 import { useRoomStore } from "@/stores"
 import { useEffect, useRef, useState } from "react"
 import { EmojiPicker } from "@/components/EmojiPicker"
+import { useShallow } from "zustand/react/shallow"
 
 type Props = {
   roomId: number
-  events: RoomEvent[]
 }
  
 export function Messages(props: Props) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const { roomId, events } = props
+  const { roomId } = props
   const { data: user } = useMe()
   const inPMWith = useRoomStore(state => state.inPMWith)
   const setInPMWith = useRoomStore(state => state.setInPMWith)
+  const events = useRoomStore(useShallow(state => state.events))
   const [open, setOpen] = useState(false)
 
   function sendMessage(content: string) {
