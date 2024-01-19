@@ -1,6 +1,6 @@
 import { config } from '@/config'
 import io from 'socket.io-client'
-import { ConnectTransportPayload, ConsumePayload, ConsumeResumePayload, ConsumeStopPayload, ProducePayload, ProduceStopPayload, RoomChatClearPayload, RoomMessageReq, RoomPrivateMessageReq, TSocket } from '@/types'
+import { ConnectTransportPayload, ConsumePayload, ConsumeResumePayload, ProducePayload, ProduceStopPayload, RoomChatClearPayload, RoomMessageReq, RoomPrivateMessageReq, TSocket } from '@/types'
 import { invalidateRooms, roomHandler } from './room'
 import { mediasoupHandler } from './mediasoup'
 import { ConsumerOptions } from 'mediasoup-client/lib/Consumer'

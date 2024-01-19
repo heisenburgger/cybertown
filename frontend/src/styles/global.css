@@ -64,6 +64,11 @@
     grid-template-columns: auto 60px;
   }
 
+  .room[data-interacted=false] {
+    grid-template-columns: 1fr;
+    place-items: center;
+  }
+
   .chat {
     overflow-x: hidden;
     flex-basis: 0 !important; /* I accidentally typed this in devtools and it started working. */

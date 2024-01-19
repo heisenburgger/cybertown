@@ -14,7 +14,6 @@ import { appMediasoup } from '../AppMediasoup';
 import { useRoomStore } from '@/stores';
 import { updateTitle } from '@/hooks/dom';
 import { config } from '@/config';
-import { Profile } from '@/pages/profile';
 
 // the inevitable global variable (pls let me have this one)
 let audioPlayedTimestamp = -1
@@ -31,15 +30,14 @@ export const roomHandler = {
 
     const rooms: SocketRoom[] | undefined = queryClient.getQueryData(["rooms"])
     const room = rooms?.find(room => room.id === appMediasoup.roomId)
-    console.log("hidden doc:", document.hidden)
     if(document.hidden && room) {
       const diff = Date.now() - audioPlayedTimestamp
-      // 2.5s
-      if(diff > 2500 || audioPlayedTimestamp === -1) {
+      if(diff > 2000 || audioPlayedTimestamp === -1) {
         const audioURL  = new URL('/sounds/notification.mp3', import.meta.url).href
         const audio = new Audio(audioURL);
+        audio.volume = 0.5
+        audio.autoplay = true
         try {
-          // TODO: fix `user didn't interact with the document first`
           audio.play();
           audioPlayedTimestamp = Date.now()
         } catch(err) {

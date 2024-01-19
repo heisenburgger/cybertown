@@ -48,9 +48,7 @@ export function Messages(props: Props) {
 
   useEffect(() => {
     if(messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({
-        behavior: 'smooth'
-      })
+      messagesEndRef.current.scrollIntoView()
     }
   }, [events])
 
