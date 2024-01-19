@@ -8,15 +8,21 @@ type State = {
   inPMWith: ProfileUser | null
   widgetMode: WidgetMode
   widgetTab: WidgetTab
-  unreadMessagesCount: number
   participants: Record<number, ParticipantState>
   events: RoomEvent[]
+  // count of unread messages when the widget is collapsed
+  // and when the tab is inactive
+  unreadMessages: {
+    widgetCollapsed: number
+    tabInactive: number
+  }
 }
 
 type Actions = {
   setInPMWith: (inPMWith: ProfileUser | null) => void
   setWidgetTab: (widgetTab: WidgetTab) => void
   setWidgetMode: (widgetMode: WidgetMode) => void
+  setUnreadMessagesFor: (key: keyof State["unreadMessages"], count: number) => void
   addEvent: (event: RoomEvent) => void
   clearChat: (userId: number) => void
 }
@@ -25,10 +31,14 @@ export const useRoomStore = create<State & Actions>()(immer((set) => ({
   inPMWith: null,
   widgetTab: 'messages',
   widgetMode: 'expanded',
-  unreadMessagesCount: 0,
   participants: {},
   events: [],
+  unreadMessages: {
+    widgetCollapsed: 0,
+    tabInactive: 0,
+  },
 
+  // TODO: why type inference isn't working for `state` here?
   setInPMWith: (inPMWith) => set((state: State) => {
     state.inPMWith = inPMWith
   }),
@@ -43,6 +53,10 @@ export const useRoomStore = create<State & Actions>()(immer((set) => ({
 
   addEvent: (event: RoomEvent) => set((state: State) => {
     state.events.push(event)
+  }),
+
+  setUnreadMessagesFor: (key, count) => set((state: State) => {
+    state.unreadMessages[key] = count
   }),
 
   clearChat: (userId) => set((state: State) => {

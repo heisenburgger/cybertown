@@ -1,4 +1,5 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { config } from "@/config";
 import { useLogout } from "@/hooks/mutations";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -30,7 +31,7 @@ export function ConfirmLogout(props: Props) {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
           <AlertDialogDescription>
-            Before you press the continue button, think of your friends in cybertown
+            Before you press the continue button, think of your friends in {config.siteTitle}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

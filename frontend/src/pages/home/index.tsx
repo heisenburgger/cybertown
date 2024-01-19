@@ -3,6 +3,8 @@ import { CreateRoom, RoomCard, Auth } from "@/pages/home/components";
 import { appSocket } from "@/lib/socket/AppSocket";
 import { useMe, useRooms } from "@/hooks/queries";
 import { Button } from "@/components/ui/button";
+import { Helmet } from 'react-helmet'
+import { config } from "@/config";
 
 // TODO: show skeleton loader and empty state for rooms
 export function Home() {
@@ -20,6 +22,10 @@ export function Home() {
 
   return (
     <div className="h-full max-w-screen-xl mx-auto p-4">
+      <Helmet>
+        <title>{config.siteTitle} | Home</title>
+      </Helmet>
+
       <div className="flex items-center justify-between">
         {user && <CreateRoom open={open} setOpen={setOpen}>
           <Button variant="outline" className="rounded-lg">Create Room</Button>
@@ -27,6 +33,7 @@ export function Home() {
         }
         <Auth />
       </div>
+
       <div className="cards mt-12">
         {rooms?.map(room => {
           return (

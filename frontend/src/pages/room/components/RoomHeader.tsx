@@ -10,9 +10,11 @@ import {
 export function RoomHeader() {
   const isWidgetExpanded = useRoomStore(state => state.widgetMode === 'expanded')
   const setWidgetMode = useRoomStore(state => state.setWidgetMode)
+  const setUnreadMessagesFor = useRoomStore(state => state.setUnreadMessagesFor)
 
   function handleWidgetExpansion() {
     setWidgetMode(isWidgetExpanded ? 'collapsed' : 'expanded')
+    setUnreadMessagesFor("widgetCollapsed", 0)
   }
 
   return (

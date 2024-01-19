@@ -17,6 +17,7 @@ export function Message(props: Props) {
   const isPM = "to" in message
   const isIPMed = "to" in message && message.from.id === user?.id
   const iPMedTo = "to" in message ? message.to : null
+  const hasSpace = !/\s/g.test(message.content)
 
   return (
     <div className={cn("flex gap-3 py-1.5 px-3", {
@@ -41,8 +42,9 @@ export function Message(props: Props) {
           )}
           <p className="text-muted-foreground text-[10px]">{getTime(message.sentAt)}</p>
         </div>
-        <p className={cn("text-sm pt-1 break-all whitespace-pre-wrap", {
-          'text-italic text-muted-foreground text-xs': message.isDeleted
+        <p className={cn("text-sm pt-1 whitespace-pre-wrap", {
+          'text-italic text-muted-foreground text-xs': message.isDeleted,
+          "break-all": hasSpace,
         })} dangerouslySetInnerHTML={{ __html: message.isDeleted ? "This message is deleted" : cleanInput(message.content) }} />
       </div>
     </div>

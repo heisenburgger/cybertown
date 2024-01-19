@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react"
+import { Helmet } from 'react-helmet'
 
 export function AuthRedirect() {
   const messageSentRef = useRef(false)
@@ -15,6 +16,9 @@ export function AuthRedirect() {
 
   return (
    <div className="h-full flex items-center justify-center">
+      <Helmet>
+        <title>Auth Redirect</title>
+      </Helmet>
       <p>Successfully logged in</p>
    </div>
   )

@@ -7,6 +7,9 @@ import { Participants, RoomHeader, RoomSidebar, RoomWidget } from "@/pages/room/
 import { cn } from "@/lib/utils"
 import { useRoomStore } from "@/stores"
 import { useShallow } from 'zustand/react/shallow'
+import { Helmet } from 'react-helmet'
+import { useVisibilityChange } from "@/hooks/dom"
+import { config } from "@/config"
 
 // TODO: create a new api for fetching a room by id
 export function Room() {
@@ -29,6 +32,7 @@ export function Room() {
     return isScreensharing || isConsuming
   }))
 
+  useVisibilityChange(room)
 
   useEffect(() => {
     if (!user || isNaN(roomId)) {
@@ -47,6 +51,9 @@ export function Room() {
 
   return (
     <div className="h-full room" data-open={isWidgetExpanded}>
+      <Helmet>
+        <title>{config.siteTitle} | {room.topic}</title>
+      </Helmet>
       <div className="flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center whitespace-pre-wrap">
           <RoomHeader />

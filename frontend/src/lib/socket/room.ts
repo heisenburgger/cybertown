@@ -7,15 +7,51 @@ import {
 	RoomCoOwnershipPayload,
   RoomChatClearedPayload,
   RoomWelcomeMessagePayload,
+  SocketRoom,
 } from '@/types';
 import { queryClient } from '@/lib/queryClient';
 import { appMediasoup } from '../AppMediasoup';
 import { useRoomStore } from '@/stores';
+import { updateTitle } from '@/hooks/dom';
+import { config } from '@/config';
+import { Profile } from '@/pages/profile';
+
+// the inevitable global variable (pls let me have this one)
+let audioPlayedTimestamp = -1
 
 export const roomHandler = {
-	broadcastMessage(data: RoomMessage | PrivateRoomMessage) {
+	async broadcastMessage(data: RoomMessage | PrivateRoomMessage) {
     console.log("broadcastMessage:", data)
-    useRoomStore.getState().addEvent({
+    const roomStore = useRoomStore.getState()
+    const unreadMessages = roomStore.unreadMessages
+
+    if(roomStore.widgetMode === 'collapsed') {
+      roomStore.setUnreadMessagesFor('widgetCollapsed', unreadMessages.widgetCollapsed + 1)
+    }
+
+    const rooms: SocketRoom[] | undefined = queryClient.getQueryData(["rooms"])
+    const room = rooms?.find(room => room.id === appMediasoup.roomId)
+    console.log("hidden doc:", document.hidden)
+    if(document.hidden && room) {
+      const diff = Date.now() - audioPlayedTimestamp
+      // 2.5s
+      if(diff > 2500 || audioPlayedTimestamp === -1) {
+        const audioURL  = new URL('/sounds/notification.mp3', import.meta.url).href
+        const audio = new Audio(audioURL);
+        try {
+          // TODO: fix `user didn't interact with the document first`
+          audio.play();
+          audioPlayedTimestamp = Date.now()
+        } catch(err) {
+          console.log('error: failed to play audio:', err)
+        }
+      }
+      const count = unreadMessages.tabInactive + 1
+      roomStore.setUnreadMessagesFor('tabInactive', count)
+      updateTitle(`(${count}) ${config.siteTitle} | ${room.topic}`)
+    }
+
+    roomStore.addEvent({
       type: 'message',
       payload: data
     })
