@@ -16,6 +16,9 @@ type State = {
     widgetCollapsed: number
     tabInactive: number
   }
+  settings: {
+    notification: boolean
+  }
 }
 
 type Actions = {
@@ -25,6 +28,7 @@ type Actions = {
   setUnreadMessagesFor: (key: keyof State["unreadMessages"], count: number) => void
   addEvent: (event: RoomEvent) => void
   clearChat: (userId: number) => void
+  setSettings: (key: keyof State["settings"], value: boolean) => void
 }
 
 export const useRoomStore = create<State & Actions>()(immer((set) => ({
@@ -36,6 +40,9 @@ export const useRoomStore = create<State & Actions>()(immer((set) => ({
   unreadMessages: {
     widgetCollapsed: 0,
     tabInactive: 0,
+  },
+  settings: {
+    notification: true
   },
 
   // TODO: why type inference isn't working for `state` here?
@@ -66,5 +73,9 @@ export const useRoomStore = create<State & Actions>()(immer((set) => ({
         event.payload.content = ''
       }
     })
-  })
+  }),
+
+  setSettings: (key, value) => set((state: State) => {
+    state.settings[key] = value
+  }),
 })))

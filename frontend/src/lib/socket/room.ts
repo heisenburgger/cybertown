@@ -32,7 +32,7 @@ export const roomHandler = {
     const room = rooms?.find(room => room.id === appMediasoup.roomId)
     if(document.hidden && room) {
       const diff = Date.now() - audioPlayedTimestamp
-      if(diff > 2000 || audioPlayedTimestamp === -1) {
+      if((diff > 2000 || audioPlayedTimestamp === -1) && roomStore.settings.notification) {
         const audioURL  = new URL('/sounds/notification.mp3', import.meta.url).href
         const audio = new Audio(audioURL);
         audio.volume = 0.5
