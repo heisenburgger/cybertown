@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRef } from "react";
 import { appMediasoup } from "@/lib/AppMediasoup";
-import { appSocket } from "@/lib/socket/AppSocket";
 import { useRoomStore } from "@/stores";
 import { useMe } from "@/hooks/queries";
 import { useShallow } from 'zustand/react/shallow'
