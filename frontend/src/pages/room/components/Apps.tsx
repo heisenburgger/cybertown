@@ -69,11 +69,7 @@ export function Apps(props: Props) {
     if(streamRef.current) {
       streamRef.current.audio?.stop()
       streamRef.current.video?.stop()
-      appSocket.stopProducing({
-        roomId,
-        roomKind: 'screenshare-video'
-      })
-      appMediasoup.stopProducing('screenshare-video')
+      appMediasoup.stopScreenshare(roomId)
     }
   }
 

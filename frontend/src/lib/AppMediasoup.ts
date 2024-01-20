@@ -110,6 +110,19 @@ class AppMediasoup {
     }
   }
 
+  async stopScreenshare(roomId: number) {
+    appSocket.stopProducing({
+      roomId,
+      roomKind: 'screenshare-video'
+    })
+    appMediasoup.stopProducing('screenshare-video')
+    appSocket.stopProducing({
+      roomId,
+      roomKind: 'screenshare-audio'
+    })
+    appMediasoup.stopProducing('screenshare-audio')
+  }
+
   async stopProducing(roomKind: RoomMediaKind) {
     const producer = this.producers.find(producer => producer.appData.roomKind = roomKind)
     if(!producer) {

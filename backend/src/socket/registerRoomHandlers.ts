@@ -37,13 +37,13 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
       }
       appMediasoup.addPeer(socketRoomId, socket.data.user.id)
       const router = appMediasoup.getRouter(socketRoomId)
-
       io.emit("room:participant:joined", {
         roomId,
         user: socket.data.user,
         joinedAt: Date.now(),
         rtpCapabilities: router.rtpCapabilities
       })
+      socket.emit('room:mediasoup:state', appMediasoup.getState(socketRoomId))
     } catch (err) {
       console.log("error: room:join:", err)
     }
@@ -105,7 +105,9 @@ export function registerRoomHandlers(io: TServer, socket: TSocket) {
   }
 
   function leaveRoom() {
-    const rooms = Array.from(socket.rooms).filter(el => el.startsWith(config.roomIdPrefix))
+    const socketRooms = Array.from(socket.rooms)
+    io.in(socketRooms).socketsLeave(socket.id)
+    const rooms = socketRooms.filter(el => el.startsWith(config.roomIdPrefix))
     rooms.forEach(room => {
       const segments = room.split(":")
       const roomId = parseInt(segments[1])
